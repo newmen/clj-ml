@@ -280,6 +280,16 @@ Total Number of Instances              149
 Ignored Class Unknown Instances                  1     
 
 nil
+user> (println (:detailed evaluation))
+=== Detailed Accuracy By Class ===
+
+               TP Rate   FP Rate   Precision   Recall  F-Measure   ROC Area  Class
+                 0.98      0          1         0.98      0.99       0.99     Iris-setosa
+                 0.94      0.04       0.922     0.94      0.931      0.947    Iris-versicolor
+                 0.94      0.03       0.94      0.94      0.94       0.951    Iris-virginica
+Weighted Avg.    0.953     0.023      0.954     0.953     0.954      0.962
+
+nil
 user> (println (:confusion-matrix evaluation))
 === Confusion Matrix ===
 
