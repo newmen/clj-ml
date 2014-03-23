@@ -240,7 +240,8 @@
                            {:num-trees-in-forest "-I"
                             :num-features-to-consider "-K"
                             :random-seed "-S"
-                            :depth "-depth"}))))
+                            :depth "-depth"
+                            :num-slots "-num-slots"}))))
 
 (defmethod make-classifier-options [:decision-tree :rotation-forest]
   ([kind algorithm m]
