@@ -69,7 +69,8 @@
            (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest
                                   AttributeSelectedClassifier Bagging RandomSubSpace)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
-           (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM)
+           (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic
+                                       PaceRegression SPegasos LibSVM SMOreg)
            (weka.classifiers Classifier Evaluation)))
 
 
@@ -187,6 +188,15 @@
                                 :tolerance-of-termination "-E"
                                 :class-weight "-W"
                                 :random-seed "-seed"}))))
+
+(defmethod make-classifier-options [:support-vector-machine :smo-regression]
+  ([kind algorithm m]
+     (->> (check-options m {})
+          (check-option-values m
+                               {:complexity-constant "-C"
+                                :normalize "-N"
+                                :optimizer-class "-I"
+                                :kernel-type "-K"}))))
 
 (defmethod make-classifier-options [:regression :linear]
   ([kind algorithm m]
@@ -542,6 +552,10 @@
         :support-vector-machine :libsvm
         LibSVM (concat options [:param-C (Math/pow 2.0 c)
                                 :kernel-gamma (Math/pow 2.0 g)])))))
+
+(defmethod make-classifier [:support-vector-machine :smo-regression]
+  ([kind algorithm & options]
+     (make-classifier-with kind algorithm SMOreg options)))
 
 (defmethod make-classifier [:regression :linear]
   ([kind algorithm & options]
