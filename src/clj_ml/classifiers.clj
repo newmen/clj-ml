@@ -569,6 +569,7 @@
   ([class-labels ^Evaluation evaluation]
      {:confusion-matrix (.toMatrixString evaluation)
       :summary (.toSummaryString evaluation)
+      :detailed (.toClassDetailsString evaluation)
       :correct (try-metric #(.correct evaluation))
       :incorrect (try-metric #(.incorrect evaluation))
       :unclassified (try-metric #(.unclassified evaluation))
