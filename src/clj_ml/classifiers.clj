@@ -66,7 +66,8 @@
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
            (weka.classifiers.rules M5Rules)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest
+                                  AttributeSelectedClassifier)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM)
            (weka.classifiers Classifier Evaluation)))
@@ -272,6 +273,14 @@
       (check-option-values m {:minimum-instances "-M"}))))
 
 
+(defmethod make-classifier-options [:meta :attributeselectedclassifier]
+  ([kind algorithm m]
+     (->> (check-options m {:debug "-D"})
+          (check-option-values m
+                               {:attribute-evaluator "-E"
+                                :search-method "-S"
+                                :base-classifier "-W"}))))
+
 ;; Building classifiers
 
 
@@ -307,6 +316,7 @@
      - :regression :linear
      - :regression :logistic
      - :regression :pace
+     - :meta :attributeselectedclassifier
 
    Optionally, a map of options can also be passed as an argument with
    a set of classifier specific options.
@@ -545,6 +555,10 @@
 (defmethod make-classifier [:rule :m5rules]
   ([kind algorithm & options]
      (make-classifier-with kind algorithm M5Rules options)))
+
+(defmethod make-classifier [:meta :attributeselectedclassifier]
+  ([kind algorithm & options]
+     (make-classifier-with kind algorithm AttributeSelectedClassifier options)))
 
 ;; Training classifiers
 

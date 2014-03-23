@@ -2,6 +2,29 @@
   (:use [clj-ml classifiers data] :reload-all)
   (:use clojure.test midje.sweet))
 
+(deftest make-classifiers-options-attributeselectedclassifier
+  (fact
+   (let [options (make-classifier-options
+                  :meta :attributeselectedclassifier
+                  {:debug true :attribute-evaluator "weka.attributeSelection.CfsSubsetEval -L"
+                   :search-method "weka.attributeSelection.BestFirst -D 1"
+                   :base-classifier "weka.classifiers.trees.J48"})]
+     options => (just ["-D" "-E" "weka.attributeSelection.CfsSubsetEval -L"
+                       "-S" "weka.attributeSelection.BestFirst -D 1"
+                       "-W" "weka.classifiers.trees.J48"] :in-any-order))))
+
+(deftest make-classifier-attributeselectedclassifier
+  (let [c (make-classifier :meta :attributeselectedclassifier)]
+    (is (= (class c)
+           weka.classifiers.meta.AttributeSelectedClassifier))))
+
+(deftest train-classifier-attributeselectedclassifier
+  (let [c (make-classifier :meta :attributeselectedclassifier)
+        ds (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
 (deftest make-classifiers-options-m5rules
   (fact
    (let [options (make-classifier-options
