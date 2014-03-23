@@ -2,6 +2,25 @@
   (:use [clj-ml classifiers data] :reload-all)
   (:use clojure.test midje.sweet))
 
+(deftest make-classifiers-options-m5rules
+  (fact
+   (let [options (make-classifier-options
+                  :rule :m5rules
+                  {:unsmoothed-predictions true :regression true :unpruned true :minimum-instances 3})]
+     options => (just ["-U" "-R" "-N" "-M" "3"] :in-any-order))))
+
+(deftest make-classifier-m5rules
+  (let [c (make-classifier :rule :m5rules)]
+    (is (= (class c)
+           weka.classifiers.rules.M5Rules))))
+
+(deftest train-classifier-m5rules
+  (let [c (make-classifier :rule :m5rules)
+        ds (make-dataset "test" [:a :b :c] [[1 2 1] [4 5 1]])]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
 (deftest make-classifiers-options-ibk
   (fact
    (let [options (make-classifier-options

@@ -65,6 +65,7 @@
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
+           (weka.classifiers.rules M5Rules)
            (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM)
@@ -262,6 +263,13 @@
                         :unpruned "-N"})
       (check-option-values m {:minimum-instances "-M"}))))
 
+(defmethod make-classifier-options [:rule :m5rules]
+  ([kind algorithm m]
+     (->>
+      (check-options m {:unsmoothed-predictions "-U"
+                        :regression "-R"
+                        :unpruned "-N"})
+      (check-option-values m {:minimum-instances "-M"}))))
 
 
 ;; Building classifiers
@@ -292,6 +300,7 @@
      - :decision-tree :M5P
      - :decision-tree :random-forest
      - :decision-tree :rotation-forest
+     - :rule :m5rules
      - :bayes :naive
      - :neural-network :mutilayer-perceptron
      - :support-vector-machine :smo
@@ -532,6 +541,10 @@
 (defmethod make-classifier [:decision-tree :m5p]
   ([kind algorithm & options]
      (make-classifier-with kind algorithm M5P options)))
+
+(defmethod make-classifier [:rule :m5rules]
+  ([kind algorithm & options]
+     (make-classifier-with kind algorithm M5Rules options)))
 
 ;; Training classifiers
 
