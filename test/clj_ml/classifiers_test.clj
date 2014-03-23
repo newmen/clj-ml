@@ -3,11 +3,33 @@
   (:use clojure.test midje.sweet))
 
 
+(deftest make-classifiers-options-random-subspace
+  (fact
+   (let [options (make-classifier-options
+                  :meta :random-subspace
+                  {:debug true :size 10 :random-seed 1
+                   :iterations 10 :base-classifier "weka.classifiers.trees.REPTree"})]
+     options => (just ["-D" "-P" "10" "-S" "1" "-I" "10" "-W"
+                       "weka.classifiers.trees.REPTree"]
+                      :in-any-order))))
+
+(deftest make-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace)]
+    (is (= (class c)
+           weka.classifiers.meta.RandomSubSpace))))
+
+(deftest train-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace)
+        ds (make-dataset "test" [:a :b {:c [:m :n]}] (take 10 (cycle [[1 2 :m] [4 5 :m]])))]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
 (deftest make-classifiers-options-bagging
   (fact
    (let [options (make-classifier-options
                   :meta :bagging
-                  {:bag-error true :debug true :bag-size 100 :seed 1
+                  {:bag-error true :debug true :bag-size 100 :random-seed 1
                    :iterations 10 :base-classifier "weka.classifiers.trees.REPTree"})]
      options => (just ["-O" "-D" "-P" "100" "-S" "1" "-I" "10" "-W"
                        "weka.classifiers.trees.REPTree"]

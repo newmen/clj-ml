@@ -67,7 +67,7 @@
            (weka.classifiers.trees J48 RandomForest M5P)
            (weka.classifiers.rules M5Rules)
            (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest
-                                  AttributeSelectedClassifier Bagging)
+                                  AttributeSelectedClassifier Bagging RandomSubSpace)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM)
            (weka.classifiers Classifier Evaluation)))
@@ -288,7 +288,16 @@
                         :debug "-D"
                         })
       (check-option-values m {:bag-size "-P"
-                              :seed "-S"
+                              :random-seed "-S"
+                              :iterations "-I"
+                              :base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :random-subspace]
+  ([kind algorithm m]
+     (->>
+      (check-options m {:debug "-D"})
+      (check-option-values m {:size "-P"
+                              :random-seed "-S"
                               :iterations "-I"
                               :base-classifier "-W"}))))
 
@@ -329,6 +338,7 @@
      - :regression :pace
      - :meta :attributeselectedclassifier
      - :meta :bagging
+     - :meta :random-subspace
 
    Optionally, a map of options can also be passed as an argument with
    a set of classifier specific options.
@@ -575,6 +585,10 @@
 (defmethod make-classifier [:meta :bagging]
   ([kind algorithm & options]
      (make-classifier-with kind algorithm Bagging options)))
+
+(defmethod make-classifier [:meta :random-subspace]
+  ([kind algorithm & options]
+     (make-classifier-with kind algorithm RandomSubSpace options)))
 
 ;; Training classifiers
 
