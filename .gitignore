@@ -5,11 +5,16 @@ classes
 .lein*
 target/*
 
+## TEST
+test.arff
+test.csv
+
 ## EMACS
 *~
 \#*
 .\#*
 .dir-locals.el
+eproject.cfg
 
 ## VIM
 *.sw?
