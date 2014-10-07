@@ -754,10 +754,11 @@ Survived,PassengerId
 
 ## How to add a Weka classifier
 
-- Add the appropriate import to the top of `classifiers.clj`.
-- Create another implmentation of `make-classifier-options` (using `defmethod`, like the others). At this point, you must decide the pair of keywords that identify your algorithm, such as `:decision-tree :c45`. List all the Weka options that the classifier accepts. Use `check-options` for options that are either present or absent, and `check-option-values` for options that require a value in addition to the option.
-- Add documentation to the `(defmulti make-classifier ...)` docstring.
-- Create another implementation of `make-classifier` (using `defmethod`, like the others).
+- In `classifiers.clj`:
+  - Add the appropriate import to the top of the file.
+  - Create another implementation of `make-classifier-options` (using `defmethod`, like the others). At this point, you must decide the pair of keywords that identify your algorithm, such as `:decision-tree :c45`. List all the Weka options that the classifier accepts. Use `check-options` for options that are either present or absent, and `check-option-values` for options that require a value in addition to the option.
+  - Add documentation to the `(defmulti make-classifier ...)` docstring.
+  - Create another implementation of `make-classifier` (using `defmethod`, like the others).
 - Ideally, add some test cases in `classifers_test.clj`.
 
 
