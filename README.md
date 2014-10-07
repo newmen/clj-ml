@@ -2,11 +2,13 @@
 
 A machine learning library for Clojure built on top of Weka and friends.
 
+This library (specifically, some dependencies) requires Java 1.7 (later versions not tested).
+
 ## Installation
 
 ### Installing from Clojars
 
-    [cc.artifice/clj-ml "0.5.0-SNAPSHOT"]
+    [cc.artifice/clj-ml "0.5.1"]
 
 ### Installing from Maven
 
