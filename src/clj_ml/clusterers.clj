@@ -209,7 +209,6 @@
   "Collects all the statistics from the evaluation of a clusterer"
   ([evaluation]
      (do
-       (println "hola?")
        (println (.clusterResultsToString evaluation))
        {:classes-to-clusters (try-metric
                               #(reduce (fn [acum i] (conj acum {i (aget (.getClassesToClusters evaluation) i)}))
