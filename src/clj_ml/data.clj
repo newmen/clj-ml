@@ -24,6 +24,11 @@
 
 ;; Common functions
 
+(defn enumeration-or-nil-seq [s]
+  "Returns the result of enumeration-seq if the input sequence is not nil,
+  an empty list otherwise"
+  (if (nil? s) '() (enumeration-seq s)))
+
 (defn is-instance?
   "Checks if the provided object is an instance"
   [instance]
@@ -241,9 +246,9 @@
   "Returns map of the labels (possible values) for the given nominal attribute as the keys
    with the values being the attributes index. "
   [^Attribute attr]
-  (let [values (enumeration-seq (.enumerateValues attr))]
+  (let [values (enumeration-or-nil-seq (.enumerateValues attr))]
     (if (empty? values)
-      :not-nominal
+      {}
       (reduce (fn [m ^String val]
                 (assoc m (keyword val) (.indexOfValue attr val)))
               {}
@@ -252,12 +257,12 @@
 (defn attribute-labels
   "Returns the labels (possible values) for the given nominal attribute as keywords."
   [^Attribute attr]
-  (set (map keyword (enumeration-seq (.enumerateValues attr)))))
+  (set (map keyword (enumeration-or-nil-seq (.enumerateValues attr)))))
 
 (defn attribute-labels-as-strings
   "Returns the labels (possible values) for the given nominal attribute as strings."
   [^Attribute attr]
-  (set (enumeration-seq (.enumerateValues attr))))
+  (set (enumeration-or-nil-seq (.enumerateValues attr))))
 
 (defn dataset-labels-at [dataset-or-instance index-or-name]
   "Returns the lables (possible values) for a nominal attribute at the provided position"
@@ -276,7 +281,7 @@
    (fn [so-far ^Attribute attr]
      (conj so-far
            (if (.isNominal attr)
-             {(keyword-name attr) (map keyword (enumeration-seq (.enumerateValues attr)))}
+             {(keyword-name attr) (map keyword (enumeration-or-nil-seq (.enumerateValues attr)))}
              (keyword-name attr))))
    []
    (attributes dataset)))
@@ -375,7 +380,7 @@ If the class is nominal then the string value (not keyword) is returned."
   (if (= (class dataset)
          ClojureInstances)
     (seq dataset)
-    (seq (enumeration-seq (.enumerateInstances ^Instances dataset)))))
+    (seq (enumeration-or-nil-seq (.enumerateInstances ^Instances dataset)))))
 
 (defn dataset-as-maps
   "Returns a lazy sequence of the dataset represetned as maps.

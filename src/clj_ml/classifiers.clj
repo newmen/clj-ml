@@ -567,7 +567,7 @@
 (defn- collect-evaluation-results
   "Collects all the statistics from the evaluation of a classifier."
   ([class-labels ^Evaluation evaluation]
-     {:confusion-matrix (.toMatrixString evaluation)
+     {:confusion-matrix (try (.toMatrixString evaluation) (catch Exception e nil))
       :summary (.toSummaryString evaluation)
       :correct (try-metric #(.correct evaluation))
       :incorrect (try-metric #(.incorrect evaluation))
