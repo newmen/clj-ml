@@ -201,8 +201,9 @@
   (let [ds (make-dataset :test [{:class [:yes :no]} {:s nil} :n]
                          [[:yes "Hello" 55] [:no "World" -100]]) 
         ds2 (make-apply-filter :reorder-attributes {:attributes ["2-last" "1"]} ds)]
-    (is (= (str ds (str (make-dataset :test [{:s nil} :n {:class [:yes :no]}]
-                                      [["Hello" 55 :yes] ["World" -100 :no]])))))))
+    (is (= (map instance-to-map (dataset-seq ds2))
+           (map instance-to-map (dataset-seq (make-dataset :test [{:s nil} :n {:class [:yes :no]}]
+                                                           [["Hello" 55 :yes] ["World" -100 :no]])))))))
 
 (deftest make-apply-filter-resample-unsupervised
   (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")

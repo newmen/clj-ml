@@ -4,7 +4,8 @@
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :url "https://github.com/joshuaeckroth/clj-ml"
-  :dependencies [[nz.ac.waikato.cms.weka/weka-dev "3.7.11"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [nz.ac.waikato.cms.weka/weka-dev "3.7.11"]
 		 [nz.ac.waikato.cms.weka/chiSquaredAttributeEval "1.0.4" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
 		 [nz.ac.waikato.cms.weka/attributeSelectionSearchMethods "1.0.7" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
      [nz.ac.waikato.cms.weka/classifierBasedAttributeSelection "1.0.4" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
