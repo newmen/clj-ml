@@ -13,6 +13,7 @@
 		 [nz.ac.waikato.cms.weka/rotationForest "1.0.3" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
 		 [nz.ac.waikato.cms.weka/paceRegression "1.0.2" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
 		 [nz.ac.waikato.cms.weka/SPegasos "1.0.2" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
+		 [nz.ac.waikato.cms.weka/racedIncrementalLogitBoost "1.0.2" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
 		 [nz.ac.waikato.cms.weka/LibSVM "1.0.6" :exclusions [nz.ac.waikato.cms.weka/weka-dev tw.edu.ntu.csie/libsvm]]
 		 [junit/junit "4.11"]
                  [tw.edu.ntu.csie/libsvm "3.17"]

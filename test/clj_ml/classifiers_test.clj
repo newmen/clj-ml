@@ -119,3 +119,31 @@
     (classifier-update c ds)
     (classifier-update c inst)
     (is true)))
+
+(deftest make-classifiers-options-raced-incremental-logit-boost
+  (fact
+   (let [options (make-classifier-options
+                  :meta :raced-incremental-logit-boost
+                  { :use-resampling-for-boosting true :debug-mode true 
+                    :committee-pruning-to-perform 0 :minimum-number-of-chunks 200 
+                    :name-of-base-classifier "weka.classifiers.trees.DecisionStump" 
+                    :random-number-seed 20 :size-of-validation-set 200 
+                    :maximum-size-of-chunks 400 
+                   })]
+     options => (just ["-Q" "-D" "-P" "0" "-C" "200" "-W" "weka.classifiers.trees.DecisionStump" "-S" "20" "-V" "200" "-M" "400"] :in-any-order))))
+
+(deftest make-classifier-raced-incremental-logit-boost
+  (let [c (make-classifier :meta :raced-incremental-logit-boost)]
+    (is (= (class c)
+           weka.classifiers.meta.RacedIncrementalLogitBoost))))
+
+(deftest update-updateable-classifier-logit-boost
+  (let [c (clj-ml.classifiers/make-classifier :meta :raced-incremental-logit-boost)
+        ds (clj-ml.data/make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
+        _  (dataset-set-class ds 2)
+        inst (make-instance ds {:a 56 :b 45 :c :m})]
+    (classifier-train  c ds)
+    (classifier-update c ds)
+    (classifier-update c inst)
+    (is true)))
+
