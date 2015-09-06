@@ -65,7 +65,7 @@
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
@@ -262,6 +262,17 @@
                         :unpruned "-N"})
       (check-option-values m {:minimum-instances "-M"}))))
 
+(defmethod make-classifier-options [:meta :raced-incremental-logit-boost]
+  ([kind algorithm m]
+     (->>
+       (check-options m { :use-resampling-for-boosting "-Q"
+                         :debug-mode "-D" })
+       (check-option-values m { :committee-pruning-to-perform "-P"
+                         :minimum-number-of-chunks "-C"
+                         :name-of-base-classifier "-W"
+                         :random-number-seed "-S"
+                         :size-of-validation-set "-V"
+                         :maximum-size-of-chunks "-M" }))))
 
 
 ;; Building classifiers
@@ -532,6 +543,10 @@
 (defmethod make-classifier [:decision-tree :m5p]
   ([kind algorithm & options]
      (make-classifier-with kind algorithm M5P options)))
+
+(defmethod make-classifier [:meta :raced-incremental-logit-boost]
+  ([kind algorithm & options]
+     (make-classifier-with kind algorithm RacedIncrementalLogitBoost options)))
 
 ;; Training classifiers
 
