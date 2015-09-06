@@ -8,7 +8,7 @@ This library (specifically, some dependencies) requires Java 1.7 (later versions
 
 ### Installing from Clojars
 
-    [cc.artifice/clj-ml "0.5.1"]
+    [cc.artifice/clj-ml "0.6.0"]
 
 ### Installing from Maven
 
