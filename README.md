@@ -17,7 +17,7 @@ This library (specifically, some dependencies) requires Java 1.7 (later versions
     <dependency>
       <groupId>cc.artifice</groupId>
       <artifactId>clj-ml</artifactId>
-      <version>0.4.0</version>
+      <version>0.6.0</version>
     </dependency>
 
 ## Supported algorithms
