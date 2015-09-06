@@ -37,6 +37,7 @@ This library (specifically, some dependencies) requires Java 1.7 (later versions
    * Naive Bayes
    * Multilayer perceptrons
    * Support vector machines (grid-based training), SMO, Spegasos
+   * Raced Incremental Logit Boost
 
  * Regression
    * Linear
