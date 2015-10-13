@@ -1,4 +1,4 @@
-(defproject cc.artifice/clj-ml "0.6.0"
+(defproject cc.artifice/clj-ml "0.6.1"
   :description "Machine Learning library for Clojure built around Weka and friends"
   :java-source-paths ["src/java"]
   :license {:name "MIT License"
@@ -26,4 +26,4 @@
   :codox {:output-dir "website/doc"
           :src-dir-uri "http://github.com/joshuaeckroth/clj-ml/blob/master"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-Xlint:deprecation" "-Xlint:unchecked"])
+  :javac-options ["-Xlint:deprecation" "-Xlint:unchecked" "-target" "1.7" "-source" "1.7"])
