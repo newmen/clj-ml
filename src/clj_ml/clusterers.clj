@@ -21,22 +21,21 @@
 
 (defmulti #^{:skip-wiki true}
   make-clusterer-options
-  "Creates ther right parameters for a clusterer"
+  "Creates the right parameters for a clusterer"
   (fn [kind map] kind))
 
 (defmethod make-clusterer-options :k-means
   ([kind m]
    (let [cols-val (check-options m {:display-standard-deviation "-V"
                                     :replace-missing-values "-M"
-                                    :initialization-method "-init"
                                     :preserve-instances-order "-O"}
                                  [""])
          cols-val-a (check-option-values m {:number-clusters "-N"
                                             :random-seed "-S"
+                                            :initialization-method "-init"
                                             :number-iterations "-I"}
                                          cols-val)]
      (into-array cols-val-a))))
-
 
 (defmethod make-clusterer-options :cobweb
   ([kind m]
