@@ -105,6 +105,8 @@
              Seed for the random number generator. Sample value: 0.3
          - :number-iterations
              Maximum number of iterations that the algorithm will run. Sample value: 1000
+         - :initialization-method
+             Initialization method to use. 0 = random, 1 = k-means++, 2 = canopy, 3 = farthest first. (default = 0)
 
      * :cobweb
 
