@@ -28,6 +28,7 @@
   ([kind m]
    (let [cols-val (check-options m {:display-standard-deviation "-V"
                                     :replace-missing-values "-M"
+                                    :initialization-method "-init"
                                     :preserve-instances-order "-O"}
                                  [""])
          cols-val-a (check-option-values m {:number-clusters "-N"
