@@ -5,8 +5,8 @@
 (deftest make-clusterers-options-k-means
   (fact
    (let [options (vec (make-clusterer-options :k-means {:display-standard-deviation true :replace-missing-values true :preserve-instances-order true
-                                                        :number-clusters 3 :random-seed 2 :number-iterations 1}))]
-     options => (just ["" "-V" "-M" "-O" "-N" "3" "-S" "2" "-I" "1"] :in-any-order))))
+                                                        :number-clusters 4 :initialization-method 3 :random-seed 2 :number-iterations 1}))]
+     options => (just ["" "-V" "-M" "-O" "-N" "4" "-init" "3" "-S" "2" "-I" "1"] :in-any-order))))
 
 (deftest make-clusterers-options-expectation-maximization
   (fact
@@ -51,3 +51,11 @@
     (clusterer-build c ds)
     (clusterer-evaluate c :cross-validation ds 2)
     (is true)))
+
+(deftest test-kmeans-clusterer-initialization-option
+  (let [ds (make-dataset :test [:a :b] [[1 1]
+                                        [2 2]
+                                        [3 3]])
+        c (make-clusterer :k-means {:initialization-method 2})]
+    (clusterer-build c ds)
+    (is (= "2" (.toString (.getInitializationMethod c))))))

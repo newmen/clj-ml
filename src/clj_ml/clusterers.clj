@@ -11,8 +11,7 @@
 
    Some of these algorithms support incremental building of the clustering without
    having the full data set in main memory. Functions for evaluating the clusterer
-   as well as for clustering new instances are also supported
-"
+   as well as for clustering new instances are also supported"
   (:use [clj-ml utils data distance-functions options-utils])
   (:import (java.util Date Random)
            (weka.clusterers ClusterEvaluation SimpleKMeans Cobweb EM)))
@@ -22,58 +21,58 @@
 
 (defmulti #^{:skip-wiki true}
   make-clusterer-options
-  "Creates ther right parameters for a clusterer"
+  "Creates the right parameters for a clusterer"
   (fn [kind map] kind))
 
 (defmethod make-clusterer-options :k-means
   ([kind m]
-     (let [cols-val (check-options m {:display-standard-deviation "-V"
-                                      :replace-missing-values "-M"
-                                      :preserve-instances-order "-O"}
-                                   [""])
-           cols-val-a (check-option-values m {:number-clusters "-N"
-                                              :random-seed "-S"
-                                              :number-iterations "-I"}
-                                           cols-val)]
-       (into-array cols-val-a))))
-
+   (let [cols-val (check-options m {:display-standard-deviation "-V"
+                                    :replace-missing-values "-M"
+                                    :preserve-instances-order "-O"}
+                                 [""])
+         cols-val-a (check-option-values m {:number-clusters "-N"
+                                            :random-seed "-S"
+                                            :initialization-method "-init"
+                                            :number-iterations "-I"}
+                                         cols-val)]
+     (into-array cols-val-a))))
 
 (defmethod make-clusterer-options :cobweb
   ([kind m]
-     (let [cols-val-a (check-option-values m {:acuity "-A"
-                                              :cutoff "-C"
-                                              :random-seed "-S"}
-                                           [""])]
-       (into-array cols-val-a))))
+   (let [cols-val-a (check-option-values m {:acuity "-A"
+                                            :cutoff "-C"
+                                            :random-seed "-S"}
+                                         [""])]
+     (into-array cols-val-a))))
 
 
 (defmethod make-clusterer-options :expectation-maximization
   ([kind m]
-     (let [cols-val-a (check-option-values m {:number-clusters "-N"
-                                              :maximum-iterations "-I"
-                                              :minimum-standard-deviation "-M"
-                                              :random-seed "-S"}
-                                           [""])]
-       (into-array cols-val-a))))
+   (let [cols-val-a (check-option-values m {:number-clusters "-N"
+                                            :maximum-iterations "-I"
+                                            :minimum-standard-deviation "-M"
+                                            :random-seed "-S"}
+                                         [""])]
+     (into-array cols-val-a))))
 
 
 ;; Building clusterers
 
 (defmacro make-clusterer-m
   ([kind clusterer-class options]
-     `(let [options-read# (if (empty? ~options)  {} (first ~options))
-            clusterer# (new ~clusterer-class)
-            opts# (make-clusterer-options ~kind options-read#)]
-        (.setOptions clusterer# opts#)
-        (when (not (empty? (get options-read# :distance-function)))
-          ;; We have to setup a different distance function
-          (let [dist# (get options-read# :distance-function)
-                real-dist# (if (map? dist#)
-                             (make-distance-function (first (keys dist#))
-                                                     (first (vals dist#)))
-                             dist#)]
-            (.setDistanceFunction clusterer# real-dist#)))
-        clusterer#)))
+   `(let [options-read# (if (empty? ~options)  {} (first ~options))
+          clusterer# (new ~clusterer-class)
+          opts# (make-clusterer-options ~kind options-read#)]
+      (.setOptions clusterer# opts#)
+      (when (not (empty? (get options-read# :distance-function)))
+        ;; We have to setup a different distance function
+        (let [dist# (get options-read# :distance-function)
+              real-dist# (if (map? dist#)
+                           (make-distance-function (first (keys dist#))
+                                                   (first (vals dist#)))
+                           dist#)]
+          (.setDistanceFunction clusterer# real-dist#)))
+      clusterer#)))
 
 (defmulti make-clusterer
   "Creates a new clusterer for the given kind algorithm and options.
@@ -106,6 +105,8 @@
              Seed for the random number generator. Sample value: 0.3
          - :number-iterations
              Maximum number of iterations that the algorithm will run. Sample value: 1000
+         - :initialization-method
+             Initialization method to use. 0 = random, 1 = k-means++, 2 = canopy, 3 = farthest first. (default = 0)
 
      * :cobweb
 
@@ -134,22 +135,21 @@
          - :minimum-standard-deviation
              Minimum allowable standard deviation for normal density computation. Default value: 1e-6
          - :random-seed
-             Seed for the random number generator. Default value: 100
-   "
+             Seed for the random number generator. Default value: 100"
   (fn [kind & options] kind))
 
 
 (defmethod make-clusterer :k-means
   ([kind & options]
-     (make-clusterer-m kind SimpleKMeans options)))
+   (make-clusterer-m kind SimpleKMeans options)))
 
 (defmethod make-clusterer :cobweb
   ([kind & options]
-     (make-clusterer-m kind Cobweb options)))
+   (make-clusterer-m kind Cobweb options)))
 
 (defmethod make-clusterer :expectation-maximization
   ([kind & options]
-     (make-clusterer-m kind EM options)))
+   (make-clusterer-m kind EM options)))
 
 
 ;; Clustering data
@@ -157,19 +157,19 @@
 (defn clusterer-build
   "Applies a clustering algorithm to a set of data"
   ([clusterer dataset]
-     (.buildClusterer clusterer dataset)))
+   (.buildClusterer clusterer dataset)))
 
 (defn clusterer-update
   "If the clusterer is updateable it updates the cluster with the given instance or set of instances"
   ([clusterer instance-s]
-     (if (is-dataset? instance-s)
-       (do (for [i (dataset-seq instance-s)]
-             (.updateClusterer clusterer i))
-           (.updateFinished clusterer)
-           clusterer)
-       (do (.updateClusterer clusterer instance-s)
-           (.updateFinished clusterer)
-           clusterer))))
+   (if (is-dataset? instance-s)
+     (do (for [i (dataset-seq instance-s)]
+           (.updateClusterer clusterer i))
+         (.updateFinished clusterer)
+         clusterer)
+     (do (.updateClusterer clusterer instance-s)
+         (.updateFinished clusterer)
+         clusterer))))
 
 ;; Retrieving information from a clusterer
 
@@ -179,27 +179,27 @@
 
 (defmethod clusterer-info SimpleKMeans
   ([clusterer]
-     "Accepts a k-means clusterer
+   "Accepts a k-means clusterer
       Returns a map with:
        :number-clusters The number of clusters in the clusterer
        :centroids       Map with the identifier and the centroid values for each cluster
        :cluster-sizes   Number of data points classified in each cluster
        :squared-error   Minimized squared error"
-     {:number-clusters (.numberOfClusters clusterer)
-      :centroids (second
-                  (reduce (fn [acum item]
-                            (let [counter (first acum)
-                                  map     (second acum)]
-                              (list (+ counter 1)
-                                    (conj map {counter item}))))
-                          (list 0 {})
-                          (dataset-seq (.getClusterCentroids clusterer))))
-      :cluster-sizes (let [sizes (.getClusterSizes clusterer)]
-                       (reduce (fn [acum item]
-                                 (conj acum {item (aget sizes item)}))
-                               {}
-                               (range 0 (.numberOfClusters clusterer))))
-      :squared-error (.getSquaredError clusterer)}))
+   {:number-clusters (.numberOfClusters clusterer)
+    :centroids (second
+                (reduce (fn [acum item]
+                          (let [counter (first acum)
+                                map     (second acum)]
+                            (list (+ counter 1)
+                                  (conj map {counter item}))))
+                        (list 0 {})
+                        (dataset-seq (.getClusterCentroids clusterer))))
+    :cluster-sizes (let [sizes (.getClusterSizes clusterer)]
+                     (reduce (fn [acum item]
+                               (conj acum {item (aget sizes item)}))
+                             {}
+                             (range 0 (.numberOfClusters clusterer))))
+    :squared-error (.getSquaredError clusterer)}))
 
 
 
@@ -208,14 +208,14 @@
 (defn- collect-evaluation-results
   "Collects all the statistics from the evaluation of a clusterer"
   ([evaluation]
-     (do
-       (println (.clusterResultsToString evaluation))
-       {:classes-to-clusters (try-metric
-                              #(reduce (fn [acum i] (conj acum {i (aget (.getClassesToClusters evaluation) i)}))
-                                       {}
-                                       (range 0 (.getNumClusters evaluation))))
-        :log-likelihood (try-metric #(.getLogLikelihood evaluation))
-        :evaluation-object evaluation})))
+   (do
+     (println (.clusterResultsToString evaluation))
+     {:classes-to-clusters (try-metric
+                            #(reduce (fn [acum i] (conj acum {i (aget (.getClassesToClusters evaluation) i)}))
+                                     {}
+                                     (range 0 (.getNumClusters evaluation))))
+      :log-likelihood (try-metric #(.getLogLikelihood evaluation))
+      :evaluation-object evaluation})))
 
 
 (defmulti clusterer-evaluate
@@ -224,22 +224,22 @@
 
 (defmethod clusterer-evaluate :dataset
   ([clusterer mode & evaluation-data]
-     (let [test-data (nth evaluation-data 0)
-           evaluation (do (let [evl (new ClusterEvaluation)]
-                            (.setClusterer evl clusterer)
-                            evl))]
-       (.evaluateClusterer evaluation test-data)
-       (println (.clusterResultsToString evaluation))
-       (collect-evaluation-results evaluation))))
+   (let [test-data (nth evaluation-data 0)
+         evaluation (do (let [evl (new ClusterEvaluation)]
+                          (.setClusterer evl clusterer)
+                          evl))]
+     (.evaluateClusterer evaluation test-data)
+     (println (.clusterResultsToString evaluation))
+     (collect-evaluation-results evaluation))))
 
 (defmethod clusterer-evaluate :cross-validation
   ([clusterer mode & evaluation-data]
-     (let [training-data (nth evaluation-data 0)
-           folds (nth evaluation-data 1)
-           evaluation (doto (new ClusterEvaluation) (.setClusterer clusterer))
-           log-likelihood (ClusterEvaluation/crossValidateModel
-                           clusterer training-data folds (new Random (.getTime (new Date))))]
-       {:log-likelihood log-likelihood})))
+   (let [training-data (nth evaluation-data 0)
+         folds (nth evaluation-data 1)
+         evaluation (doto (new ClusterEvaluation) (.setClusterer clusterer))
+         log-likelihood (ClusterEvaluation/crossValidateModel
+                         clusterer training-data folds (new Random (.getTime (new Date))))]
+     {:log-likelihood log-likelihood})))
 
 
 ;; Clustering collections
@@ -247,13 +247,13 @@
 (defn clusterer-cluster
   "Add a class to each instance according to the provided clusterer"
   ([clusterer dataset]
-     (let [attributes (conj (clj-ml.data/dataset-format dataset)
-                            {:class (map #(keyword (str %1)) (range 0 (.numberOfClusters clusterer)))})
-           clustered (map (fn [i] (conj (instance-to-vector i)
-                                        (keyword (str (.clusterInstance clusterer i)))))
-                          (dataset-seq dataset))
-           nds (make-dataset (keyword (str "clustered " (dataset-name dataset)))
-                             attributes
-                             clustered)]
-       (dataset-set-class nds (- (count attributes) 1))
-       nds)))
+   (let [attributes (conj (clj-ml.data/dataset-format dataset)
+                          {:class (map #(keyword (str %1)) (range 0 (.numberOfClusters clusterer)))})
+         clustered (map (fn [i] (conj (instance-to-vector i)
+                                      (keyword (str (.clusterInstance clusterer i)))))
+                        (dataset-seq dataset))
+         nds (make-dataset (keyword (str "clustered " (dataset-name dataset)))
+                           attributes
+                           clustered)]
+     (dataset-set-class nds (- (count attributes) 1))
+     nds)))
