@@ -563,6 +563,11 @@ First globally replace all double quoted strings `""foo""` with
 backslash quoted strings: `\"foo\"`. Weka does not handle the former.
 
 ```clojure
+user> (require '[clj-ml.io :refer [load-instances]]
+               '[clj-ml.data :refer [dataset-set-class dataset-class-index dataset-class-name]]
+               '[clj-ml.filters :refer [make-apply-filter]]
+               '[clj-ml.classifiers :refer [classifier-evaluate make-classifier]])
+nil
 user> (def titanicds (load-instances :csv "file:///home/josh/git/clj-ml/titanic-train.csv"))
 user> titanicds
 #<Instances @relation stream
@@ -676,8 +681,10 @@ Ok, looks good, let's try training on the full training data and
 testing on the testing data.
 
 ```clojure
+user> (require '[clj-ml.data :refer [dataset-as-maps dataset-seq]]
+               '[clj-ml.classifiers :refer [classifier-train classifier-classify]])
 user> (def titanic-testds (load-instances :csv "file:///home/josh/git/clj-ml/titanic-test.csv"))
-
+nil
 user> (def titanic-test-passids (map (comp int :PassengerId)
                                      (dataset-as-maps titanic-testds)))
 #'user/titanic-test-passids
