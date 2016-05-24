@@ -299,7 +299,6 @@
      - :lazy :ibk
      - :decision-tree :c45
      - :decision-tree :boosted-stump
-     - :decision-tree :boosted-decision-tree
      - :decision-tree :M5P
      - :decision-tree :random-forest
      - :decision-tree :rotation-forest
