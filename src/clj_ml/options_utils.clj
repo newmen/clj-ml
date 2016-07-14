@@ -5,7 +5,7 @@
 
 (ns #^{:author "Ben Mabey <ben@benmabey.com>"
        :skip-wiki true}
-  clj-ml.options-utils
+      clj-ml.options-utils
   (:use [clj-ml utils])
   (:require [clojure [string :as str]]))
 
@@ -40,25 +40,46 @@
   ([m] (extract-attributes "-R" m))
   ([flag m] (extract-attributes flag :attributes m))
   ([flag key-name m]
-     (if-let [attributes (key-name m)]
-       [flag (str/join ","
-                       (for [attr attributes]
-                         (if (string? attr) attr
-                             (inc (dataset-index-attr (:dataset-format m) attr)))))]
-       [])))
-
+   (if-let [attributes (key-name m)]
+     [flag (str/join ","
+                     (for [attr attributes]
+                       (if (string? attr) attr
+                           (inc (dataset-index-attr (:dataset-format m) attr)))))]
+     [])))
 
 ;; TODO: Raise a helpful exception when the keys don't match up with the provided flags.
 (defn check-options
   "Checks the presence of a set of options for a filter"
   ([args-map opts-map]
-     (check-options args-map opts-map []))
+   (check-options args-map opts-map []))
   ([args-map opts-map options-so-far]
-     (reduce (fn [so-far [option flag]] (check-option so-far option flag args-map)) options-so-far opts-map)))
+   (reduce (fn [so-far [option flag]] (check-option so-far option flag args-map)) options-so-far opts-map)))
 
 (defn check-option-values
   "Checks the presence of a set of options with value for a filter"
   ([args-map opts-map]
-     (check-option-values args-map opts-map []))
+   (check-option-values args-map opts-map []))
   ([args-map opts-map options-so-far]
-     (reduce (fn [so-far [option flag]] (check-option-value so-far option flag args-map)) options-so-far opts-map)))
+   (reduce (fn [so-far [option flag]] (check-option-value so-far option flag args-map)) options-so-far opts-map)))
+
+(defn option-handler
+  "Creates ther right parameters for objects that implement the 
+  OptionHandler interface"
+  ([map]
+   (let [cols (get map :attributes)
+         pre-cols (reduce #(str %1 "," (+ %2 1)) "" cols)
+         cols-val-a ["-R" (.substring pre-cols 1 (.length pre-cols))]
+         cols-val-b (check-options {:invert "-V"
+                                    :no-normalization "-D"}
+                                   map
+                                   cols-val-a)]
+     (into-array cols-val-b))))
+
+;;TODO: replace with clojure.spec post 1.9 
+(defn opt-check
+  "Used as method precondition to check for option correctness.
+  "
+  ([opt opt-name] (opt-check opt opt-name (comp not nil?)))
+  ([opt opt-name checkfn]
+   (or (checkfn opt)
+       (throw (java.lang.AssertionError. (format "mandatory argument value for %s not provided " opt-name))))))

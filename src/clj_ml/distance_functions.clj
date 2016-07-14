@@ -15,6 +15,7 @@
 
 ;; Setting up clusterer options
 
+(comment
 (defn- make-distance-function-options
   "Creates ther right parameters for a distance-function"
   ([map]
@@ -25,7 +26,7 @@
                                       :no-normalization "-D"}
                                      map
                                      cols-val-a)]
-       (into-array cols-val-b))))
+       (into-array cols-val-b)))))
 
 
 (defmulti make-distance-function
@@ -36,21 +37,21 @@
 (defmethod make-distance-function :euclidean
   ([kind & options]
      (let [dist (new EuclideanDistance)
-           opts (make-distance-function-options (first-or-default options {}))]
+           opts (option-handler (first-or-default options {}))]
        (.setOptions dist opts)
        dist)))
 
 (defmethod make-distance-function :manhattan
   ([kind & options]
      (let [dist (new ManhattanDistance)
-           opts (make-distance-function-options (first-or-default options {}))]
+           opts (option-handler (first-or-default options {}))]
        (.setOptions dist opts)
        dist)))
 
 (defmethod make-distance-function :chebyshev
   ([kind & options]
      (let [dist (new ChebyshevDistance)
-           opts (make-distance-function-options (first-or-default options {}))]
+           opts (option-handler (first-or-default options {}))]
        (.setOptions dist opts)
        dist)))
 
