@@ -34,3 +34,28 @@
   {:pre [(opt-check nsymbols :nsymbols)
          (opt-check fprior :fprior)]}
   (new DiscreteEstimatorBayes nsymbols fprior))
+
+((seq (vector 1 2)))
+(defmulti abcd (fn [a b] b))
+(defmethod abcd ::collection
+  [args]
+  (println "seq"))
+
+(defmethod abcd String
+  [args]
+  (println "not seq"))
+
+(abcd 12 "asd")
+(abc [])
+(abc '())
+(abc {})
+(abc #{})
+(defmethod estimator-update class)
+
+(defmethod estimator-update ::collection
+  ([estimator data] (add-values estimator data (repeat (count data) 1.0)))
+  ([estimator data weight]
+   (if (is-dataset? data)
+     (. estimator addValues)))
+  ([estimator data weight attrIndex classIndex classValue]))
+([estimator data weight attrIndex classIndex classValue amin amax])
