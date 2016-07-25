@@ -124,12 +124,11 @@
   (fact
    (let [options (make-classifier-options
                   :meta :raced-incremental-logit-boost
-                  { :use-resampling-for-boosting true :debug-mode true 
-                    :committee-pruning-to-perform 0 :minimum-number-of-chunks 200 
-                    :name-of-base-classifier "weka.classifiers.trees.DecisionStump" 
-                    :random-number-seed 20 :size-of-validation-set 200 
-                    :maximum-size-of-chunks 400 
-                   })]
+                  {:use-resampling-for-boosting true :debug-mode true
+                   :committee-pruning-to-perform 0 :minimum-number-of-chunks 200
+                   :name-of-base-classifier "weka.classifiers.trees.DecisionStump"
+                   :random-number-seed 20 :size-of-validation-set 200
+                   :maximum-size-of-chunks 400})]
      options => (just ["-Q" "-D" "-P" "0" "-C" "200" "-W" "weka.classifiers.trees.DecisionStump" "-S" "20" "-V" "200" "-M" "400"] :in-any-order))))
 
 (deftest make-classifier-raced-incremental-logit-boost
@@ -147,3 +146,14 @@
     (classifier-update c inst)
     (is true)))
 
+(deftest make-classifiers-options-pls
+  (fact
+   (let [options (make-classifier-options
+                  :regression :partial-least-squares
+                  {:algorithm "PLS1" :type-of-preprocessing "standardize"})]
+     options => (just ["-A" "PLS1" "-P" "standardize"] :in-any-order))))
+
+(deftest make-classifier-pls
+  (let [c (make-classifier :regression :partial-least-squares)]
+    (is (= (class c)
+           weka.classifiers.functions.PLSClassifier))))
