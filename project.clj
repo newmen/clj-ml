@@ -1,4 +1,4 @@
-(defproject cc.artifice/clj-ml "0.7.0"
+(defproject cc.artifice/clj-ml "0.8.0"
   :description "Machine Learning library for Clojure built around Weka and friends"
   :java-source-paths ["src/java"]
   :license {:name "MIT License"
