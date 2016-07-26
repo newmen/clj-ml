@@ -315,6 +315,7 @@
      - :regression :linear
      - :regression :logistic
      - :regression :pace
+     - :regression :pls
 
    Optionally, a map of options can also be passed as an argument with
    a set of classifier specific options.
