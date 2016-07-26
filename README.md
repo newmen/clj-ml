@@ -2,7 +2,7 @@
 
 A machine learning library for Clojure built on top of Weka and friends.
 
-This library (specifically, some dependencies) requires Java 1.7 (later versions not tested).
+This library (specifically, some dependencies) requires Java 1.7+.
 
 ## Installation
 
