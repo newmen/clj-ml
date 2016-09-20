@@ -735,3 +735,9 @@
   ([^Classifier classifier ^Instance instance]
    (let [cls (.classifyInstance classifier instance)]
      (doto instance (.setClassValue cls)))))
+
+(defn classifier-predict-probability
+  "Classifies an instance using the provided classifier. Returns the
+   probability distribution across classes for the instance"
+  ([^Classifier classifier ^Instance instance]
+   (vec (.distributionForInstance classifier instance))))
