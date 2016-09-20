@@ -99,6 +99,17 @@
     (classifier-train c ds)
     (is (= :m (classifier-classify c inst)))))
 
+(deftest test-classifier-predict-probability
+  (let [c (make-classifier :decision-tree :c45)
+        ds (-> (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
+               (dataset-set-class 2))
+        inst (-> (first (dataset-seq ds))
+                 (instance-set-class-missing))
+        _ (classifier-train c ds)
+        res (classifier-predict-probability c inst)]
+    (is (= 2 (count res)))
+    (is (every? number? res))))
+
 (deftest test-classifier-label
   (let [c (make-classifier :decision-tree :c45)
         ds (-> (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
