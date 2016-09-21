@@ -232,12 +232,19 @@
 (defmethod make-classifier-options [:decision-tree :random-forest]
   ([kind algorithm m]
    (->>
-    (check-options m {:debug "-D"})
+    (check-options m {:debug "-D"
+                      :break-ties "-B"
+                      })
     (check-option-values m
                          {:num-trees-in-forest "-I"
                           :num-features-to-consider "-K"
                           :random-seed "-S"
-                          :depth "-depth"}))))
+                          :depth "-depth"
+                          :size-of-bag "-P"
+                          :parallelism "-num-slots" 
+                          :min-num-instance-per-leaf "-M"
+                          :min-variance-for-split "-V"
+                          }))))
 
 (defmethod make-classifier-options [:decision-tree :rotation-forest]
   ([kind algorithm m]
