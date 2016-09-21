@@ -168,3 +168,11 @@
   (let [c (make-classifier :regression :partial-least-squares)]
     (is (= (class c)
            weka.classifiers.functions.PLSClassifier))))
+
+(deftest make-classifier-random-forest
+  (let [c (make-classifier :decision-tree :random-forest
+                           {:num-trees-in-forest 10
+                            :parallelism 2}
+                           )]
+    (is (= (class c)
+           weka.classifiers.trees.RandomForest))))
