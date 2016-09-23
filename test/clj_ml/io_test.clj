@@ -1,5 +1,6 @@
 (ns clj-ml.io-test
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [clojure.java.io :as jio])
   (:use [clj-ml io data] :reload-all)
   (:use clojure.test midje.sweet))
 
@@ -30,13 +31,19 @@
                                         {1 110 2 :blue}
                                         {0 Double/NaN 1 120}]
                                        {:weight 2})]
-    (is (= (do (save-instances :csv "test.csv" ds)
-               (str/replace (slurp "test.csv") #"\r\n" "\n"))
+    (is (= (let [_ (save-instances :csv "test.csv" ds)
+                res(str/replace (slurp "test.csv") #"\r\n" "\n")
+                _ (jio/delete-file "test.csv")]
+             res)
            "a,b,c\n1,2,m\n4,5,m\n"))
-    (is (= (do (save-instances :arff "test.arff" ds)
-               (str/replace (slurp "test.arff") #"\r\n" "\n"))
+    (is (= (let [_  (save-instances :arff "test.arff" ds)
+               res (str/replace (slurp "test.arff") #"\r\n" "\n")
+               _ (jio/delete-file "test.arff")]
+             res)
            "@relation test\n\n@attribute a numeric\n@attribute b numeric\n@attribute c {m,n}\n\n@data\n1,2,m\n4,5,m\n"))
-    (is (= (do (save-instances :arff "testsparse.arff" ds-sparse)
-               (str/replace (slurp "testsparse.arff") #"\r\n" "\n"))
+    (is (= (let [_  (save-instances :arff "testsparse.arff" ds-sparse)
+               res (str/replace (slurp "testsparse.arff") #"\r\n" "\n")
+                _ (jio/delete-file "testsparse.arff")]
+             res)
            "@relation test\n\n@attribute age numeric\n@attribute iq numeric\n@attribute favorite-color {none,red,blue,green}\n\n@data\n{0 12,2 red},{2}\n{1 110,2 blue},{2}\n{0 ?,1 120},{2}\n"))))
 

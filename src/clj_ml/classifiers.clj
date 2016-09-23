@@ -65,7 +65,7 @@
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost Bagging RandomSubSpace Stacking)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM PLSClassifier)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
@@ -279,6 +279,34 @@
                             :random-number-seed "-S"
                             :size-of-validation-set "-V"
                             :maximum-size-of-chunks "-M"}))))
+
+(defmethod make-classifier-options [:meta :bagging]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:size-of-bag "-P"
+                            :parallelism "-num-slots"
+                            :num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :random-subspace]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:size-of-subspace "-P"
+                            :num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :stacking]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:cross-validation-folds "-X"
+                            :meta-classifier "-M"
+                            :random-seed "-S"
+                            :classifiers "-B"}))))
 
 (defmethod make-classifier-options [:regression :partial-least-squares]
   ([kind algorithm m]
@@ -561,6 +589,18 @@
 (defmethod make-classifier [:meta :raced-incremental-logit-boost]
   ([kind algorithm & options]
    (make-classifier-with kind algorithm RacedIncrementalLogitBoost options)))
+
+(defmethod make-classifier [:meta :bagging]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm Bagging options)))
+
+(defmethod make-classifier [:meta :random-subspace]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm RandomSubSpace options)))
+
+(defmethod make-classifier [:meta :stacking]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm Stacking options)))
 
 (defmethod make-classifier [:regression :partial-least-squares]
   ([kind algorithm & options]
