@@ -176,3 +176,27 @@
                            )]
     (is (= (class c)
            weka.classifiers.trees.RandomForest))))
+
+(deftest make-classifier-bagging
+  (let [c (make-classifier :meta :bagging
+                           {:size-of-bag 10
+                            :parallelism 2}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.Bagging))))
+
+(deftest make-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace
+                           {:size-of-subspace 10
+                            :num-iterations 20}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.RandomSubSpace))))
+
+(deftest make-classifier-stacking
+  (let [c (make-classifier :meta :stacking
+                           {:cross-validation-folds 3 
+                            :random-seed 20}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.Stacking))))
