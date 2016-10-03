@@ -224,9 +224,8 @@
                               :num-iterations "-I"
                               :random-seed "-S"
                               :percentage-weight-mass "-P"
-                              :folds-for-cross-validation "-F"
-                              :runs-for-cross-validation "-R"
                               :log-likelihood-improvement-threshold "-L"
+                              :z-max-threshold-for-responses "-Z"
                               :shrinkage-parameter "-H"}))))
 
 (defmethod make-classifier-options [:decision-tree :random-forest]
