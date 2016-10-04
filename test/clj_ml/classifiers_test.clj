@@ -200,3 +200,16 @@
                            )]
     (is (= (class c)
            weka.classifiers.meta.Stacking))))
+
+(deftest make-classifier-boosted-stump
+  (let [c (make-classifier :decision-tree :boosted-stump
+                           {:weak-learning-class "weka.classifiers.trees.DecisionStump"
+                              :num-iterations 10 
+                              :random-seed 29 
+                              :percentage-weight-mass 90 
+                              :log-likelihood-improvement-threshold 0.9 
+                              :z-max-threshold-for-responses 3 
+                              :shrinkage-parameter 1}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.LogitBoost))))
