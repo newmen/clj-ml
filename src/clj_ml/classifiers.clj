@@ -693,6 +693,10 @@
     where for training and the number of folds.
 
       (classifier-evaluate *classifier* :cross-validation *training* 10)
+    
+    An optional seed can be provided for generation of the cross validation folds.
+
+      (classifier-evaluate *classifier* :cross-validation *training* 10 {:random-seed 29})
 
     The metrics available in the evaluation are listed below:
 
