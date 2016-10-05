@@ -746,13 +746,16 @@
         (eval-fn classifier))))))
 
 (defmethod classifier-evaluate :cross-validation
-  ([classifier mode & [training-data folds]]
+  ([classifier mode & [training-data folds
+                       {:keys [random-seed]
+                        :or {random-seed (.getTime (new Date))}}
+                       ]]
    (capture-out-err
     (letfn [(eval-fn [c]
               (let [evaluation (new Evaluation training-data)
                     class-labels (dataset-class-labels training-data)]
                 (.crossValidateModel evaluation c training-data folds
-                                     (new Random (.getTime (new Date))) (into-array []))
+                                     (new Random random-seed) (into-array []))
                 (collect-evaluation-results class-labels evaluation)))]
       (if (seq? classifier)
         (last (sort-by :correct (map eval-fn classifier)))
