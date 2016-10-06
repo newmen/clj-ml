@@ -121,6 +121,15 @@
     (is (= weka.filters.supervised.instance.Resample
            (class f)))))
 
+(deftest make-filter-stratified-remove-folds-supervised
+  (let [ds (dataset-set-class
+            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            :class)
+        f (make-filter :stratified-remove-folds-supervised {:dataset-format ds :num-folds 3 :fold 1 :seed 2016 })]
+    (is (= weka.filters.supervised.instance.StratifiedRemoveFolds
+           (class f)))))
+
 (deftest make-filter-remove-attributes
   (let [ds (make-dataset :test [:a :b {:c [:g :m]}]
                          [ [1 2 :g]
@@ -199,7 +208,7 @@
 
 (deftest make-apply-filter-reorder-attributes
   (let [ds (make-dataset :test [{:class [:yes :no]} {:s nil} :n]
-                         [[:yes "Hello" 55] [:no "World" -100]]) 
+                         [[:yes "Hello" 55] [:no "World" -100]])
         ds2 (make-apply-filter :reorder-attributes {:attributes ["2-last" "1"]} ds)]
     (is (= (map instance-to-map (dataset-seq ds2))
            (map instance-to-map (dataset-seq (make-dataset :test [{:s nil} :n {:class [:yes :no]}]

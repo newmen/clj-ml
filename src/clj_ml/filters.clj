@@ -206,6 +206,14 @@
 
 (deffilter resample-supervised)
 
+(defmethod make-filter-options :stratified-remove-folds-supervised
+  ([kind m]
+     (->> (check-option-values m {:num-folds "-N" :fold "-F" :seed "-S"})
+          (check-options m { :invert "-V"}))))
+
+(deffilter stratified-remove-folds-supervised)
+
+
 (defmethod make-filter-options :replace-missing-values
   ([kind m]
      (check-options m {:unset-class-temporarily "-unset-class-temporarily"})))
@@ -252,7 +260,8 @@
    :resample-supervised weka.filters.supervised.instance.Resample
    :select-append-attributes weka.filters.unsupervised.attribute.Copy
    :replace-missing-values weka.filters.unsupervised.attribute.ReplaceMissingValues
-   :project-attributes weka.filters.unsupervised.attribute.Remove})
+   :project-attributes weka.filters.unsupervised.attribute.Remove
+   :stratified-remove-folds-supervised weka.filters.supervised.instance.StratifiedRemoveFolds})
 
 
 (defn make-filter
@@ -504,6 +513,28 @@
 
         - :invert
           Inverts the selection; can only be true if :replacement is false (boolean)
+
+    * :stratified-remove-folds-supervised
+
+      \"This filter takes a dataset and outputs a specified fold for cross validation.
+        If you do not want the folds to be stratified use the unsupervised version.\"
+      -- from Weka JavaDoc
+
+      Parameters:
+
+        - :num-folds
+          Specifies number of folds dataset is split into. (default 10)
+
+        - :fold
+          Specifies which fold is selected. (default 1)
+
+        - :seed
+          Specifies random number seed. (default 0, no randomizing)
+
+        - :invert
+          Specifies if inverse of selection is to be output.
+
+
 
     * :select-append-attributes
 
