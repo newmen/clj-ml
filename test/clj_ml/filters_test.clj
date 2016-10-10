@@ -219,6 +219,16 @@
         ds2 (make-apply-filter :resample-supervised {:seed 10 :size-percent 50 :no-replacement true :bias 1} ds)]
     (is (= 75 (dataset-count ds2)))))
 
+(deftest make-apply-filter-random-subset
+  (let [num-att 2
+        ds (dataset-set-class
+            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            :class)
+        ds2 (make-apply-filter :random-subset {:seed 10 :num-attributes num-att} ds)]
+    ;;the class is the third attribute, hence the count has to be decremented
+    (is (= num-att (-> (dataset-as-vecs ds2) first count dec)))))
+
 (deftest make-apply-filters-test
   (let [ds (make-dataset :test [:a :b {:c [:g :m]}]
                          [ [1 2 :g]

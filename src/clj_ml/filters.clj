@@ -231,6 +231,13 @@
 (deffilter clj-streamable)
 (deffilter clj-batch)
 
+(defmethod make-filter-options :random-subset
+  ([kind m]
+     (->> (check-options m {:debug "-D"})
+          (check-option-values m {:num-attributes "-N"
+                                  :random-seed "-S"}))))
+
+(deffilter random-subset)
 ;; Creation of filters
 
 (def filter-aliases
@@ -252,7 +259,9 @@
    :resample-supervised weka.filters.supervised.instance.Resample
    :select-append-attributes weka.filters.unsupervised.attribute.Copy
    :replace-missing-values weka.filters.unsupervised.attribute.ReplaceMissingValues
-   :project-attributes weka.filters.unsupervised.attribute.Remove})
+   :project-attributes weka.filters.unsupervised.attribute.Remove
+   :random-subset weka.filters.unsupervised.attribute.RandomSubset
+   })
 
 
 (defn make-filter
