@@ -693,6 +693,10 @@
     where for training and the number of folds.
 
       (classifier-evaluate *classifier* :cross-validation *training* 10)
+    
+    An optional seed can be provided for generation of the cross validation folds.
+
+      (classifier-evaluate *classifier* :cross-validation *training* 10 {:random-seed 29})
 
     The metrics available in the evaluation are listed below:
 
@@ -746,13 +750,16 @@
         (eval-fn classifier))))))
 
 (defmethod classifier-evaluate :cross-validation
-  ([classifier mode & [training-data folds]]
+  ([classifier mode & [training-data folds
+                       {:keys [random-seed]
+                        :or {random-seed (.getTime (new Date))}}
+                       ]]
    (capture-out-err
     (letfn [(eval-fn [c]
               (let [evaluation (new Evaluation training-data)
                     class-labels (dataset-class-labels training-data)]
                 (.crossValidateModel evaluation c training-data folds
-                                     (new Random (.getTime (new Date))) (into-array []))
+                                     (new Random random-seed) (into-array []))
                 (collect-evaluation-results class-labels evaluation)))]
       (if (seq? classifier)
         (last (sort-by :correct (map eval-fn classifier)))

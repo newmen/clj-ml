@@ -80,8 +80,10 @@
         ds (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
         _  (dataset-set-class ds 2)
         _  (classifier-train c ds)
-        res (classifier-evaluate c :cross-validation ds 2)]
-    (is (= 28 (count (keys res))))))
+        res (classifier-evaluate c :cross-validation ds 2)
+        randres (classifier-evaluate c :cross-validation ds 2 {:random-seed 29}) ]
+    (is (= 28 (count (keys res))))
+    (is (= 28 (count (keys randres))))))
 
 (deftest classifier-evaluate-cross-validation-grid
   (let [c (make-classifier :support-vector-machine :libsvm-grid)
