@@ -344,7 +344,7 @@
      - :decision-tree :random-forest
      - :decision-tree :rotation-forest
      - :bayes :naive
-     - :neural-network :mutilayer-perceptron
+     - :neural-network :multilayer-perceptron
      - :support-vector-machine :smo
      - :regression :linear
      - :regression :logistic
