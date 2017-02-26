@@ -233,6 +233,7 @@
    (->>
     (check-options m {:debug "-D"
                       :break-ties "-B"
+                      :print-classifiers "-print"
                       })
     (check-option-values m
                          {:num-trees-in-forest "-I"
