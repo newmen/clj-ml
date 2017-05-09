@@ -141,6 +141,15 @@
 
 (deffilter string-to-word-vector)
 
+(defmethod make-filter-options :normalize
+  ([kind m]
+   (->> (extract-attributes m)
+        (check-options m {:unset-class "-unset-class-temporarily"})
+        (check-option-values m {:scale "-S"
+                                :translation "-T"}))))
+
+(deffilter normalize)
+
 (def attribute-types
   "Mapping of Weka's attribute types from clj-ml keywords to the -T flag's representation."
   {:numeric "NUM" :nominal "NOM" :string "STR" :date "DAT"})
@@ -270,7 +279,7 @@
    :project-attributes weka.filters.unsupervised.attribute.Remove
    :stratified-remove-folds-supervised weka.filters.supervised.instance.StratifiedRemoveFolds
    :random-subset weka.filters.unsupervised.attribute.RandomSubset
-   })
+   :normalize weka.filters.unsupervised.attribute.Normalize})
 
 (defn make-filter
   "Creates a filter for the provided attributes format. The first argument must be a symbol
