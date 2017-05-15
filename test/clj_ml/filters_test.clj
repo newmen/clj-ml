@@ -238,6 +238,14 @@
     ;;the class is the third attribute, hence the count has to be decremented
     (is (= num-att (-> (dataset-as-vecs ds2) first count dec)))))
 
+(deftest make-apply-filter-normalize
+  (let [ds (dataset-set-class
+             (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                 (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+             :class)
+        ds2 (make-apply-filter :normalize {:scale 1.0 :translation 0.0 :unset-class false} ds)]
+    (is (every? (fn [v] (every? #(<= 0.0 % 1.0) (butlast v))) (dataset-as-vecs ds2)))))
+
 (deftest make-apply-filters-test
   (let [ds (make-dataset :test [:a :b {:c [:g :m]}]
                          [ [1 2 :g]
