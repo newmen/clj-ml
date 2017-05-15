@@ -662,7 +662,7 @@
    The application of this filter is equivalent to the consecutive application of
    make-filter and apply-filter."
   [kind options dataset]
-  (let [opts (if (nil? (:dataset-format options)) (conj options {:dataset-format dataset}))
+  (let [opts (cond-> options (nil? (:dataset-format options)) (conj {:dataset-format dataset}))
         filter (make-filter kind opts)]
     (filter-apply filter dataset)))
 
