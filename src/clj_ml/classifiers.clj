@@ -65,7 +65,7 @@
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost Bagging RandomSubSpace Stacking)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost Bagging RandomSubSpace Stacking CostSensitiveClassifier MetaCost)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM PLSClassifier)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
@@ -307,6 +307,29 @@
                             :meta-classifier "-M"
                             :random-seed "-S"
                             :classifiers "-B"}))))
+
+(defmethod make-classifier-options [:meta :cost-sensitive]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:minimize-misclassification-cost "-M"
+                            :cost-file-name "-C"
+                            :cost-file-directory "-N"
+                            :cost-matrix "-cost-matrix"
+                            :random-seed "-S"
+                            :base-classifier-name "-W"}))))
+
+(defmethod make-classifier-options [:meta :meta-cost]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:num-bagging-iterations "-I"
+                            :cost-file-name "-C"
+                            :cost-file-directory "-N"
+                            :cost-matrix "-cost-matrix"
+                            :size-of-bag "-P"
+                            :random-seed "-S"
+                            :base-classifier-name "-W"}))))
 
 (defmethod make-classifier-options [:regression :partial-least-squares]
   ([kind algorithm m]
@@ -601,6 +624,14 @@
 (defmethod make-classifier [:meta :stacking]
   ([kind algorithm & options]
    (make-classifier-with kind algorithm Stacking options)))
+
+(defmethod make-classifier [:meta :cost-sensitive]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm CostSensitiveClassifier options)))
+
+(defmethod make-classifier [:meta :meta-cost]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm MetaCost options)))
 
 (defmethod make-classifier [:regression :partial-least-squares]
   ([kind algorithm & options]
