@@ -374,6 +374,12 @@
      - :regression :logistic
      - :regression :pace
      - :regression :pls
+     - :meta :meta-cost
+     - :meta :cost-sensitive
+     - :meta :stacking
+     - :meta :random-subspace
+     - :meta :bagging
+     - :meta :raced-incremental-logit-boost
 
    Optionally, a map of options can also be passed as an argument with
    a set of classifier specific options.
@@ -523,6 +529,30 @@
             Set the maximum number of iterations (default -1, until convergence).
         - :ridge
             Set the ridge in the log-likelihood.
+
+     * :meta :meta-cost
+
+      Parameters: 
+
+        - :num-bagging-iterations 
+            Set the number of bagging iterations
+        - :cost-file-name 
+            Set the file path to read the cost matrix 
+        - :cost-file-directory 
+            Set the directory to read the cost matrix from
+        - :cost-matrix 
+            Specify the cost matrix as an option. 
+        - :size-of-bag 
+            Set the size of bag for Bagging
+        - :random-seed 
+            Set the random seed
+        - :base-classifier-name 
+            Set the (string quoted) base classifier class name 
+     * :meta :cost-sensitive
+     * :meta :stacking
+     * :meta :random-subspace
+     * :meta :bagging
+     * :meta :raced-incremental-logit-boost
 "
   (fn [kind algorithm & options] [kind algorithm]))
 
