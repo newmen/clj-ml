@@ -64,10 +64,9 @@
   (:import (java.util Date Random)
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
-           (weka.classifiers.trees J48 RandomForest M5P HyperSMURF)
+           (weka.classifiers.trees J48 RandomForest M5P)
            (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost 
-                                  Bagging RandomSubSpace Stacking CostSensitiveClassifier MetaCost
-                                  EasyEnsemble)
+                                  Bagging RandomSubSpace Stacking CostSensitiveClassifier MetaCost)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM PLSClassifier)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
@@ -333,27 +332,6 @@
                             :random-seed "-S"
                             :base-classifier-name "-W"}))))
 
-(defmethod make-classifier-options [:meta :easy-ensemble]
-  ([kind algorithm m]
-   (->>
-    (check-options m {:debug-mode "-D"})
-    (check-option-values m {:majority-class-num-partitions "-I"
-                            :random-seed "-S"
-                            :num-execution-slots "-num-slots"
-                            :base-classifier-name "-W"}))))
-
-(defmethod make-classifier-options [:meta :hyper-smurf]
-  ([kind algorithm m]
-   (->>
-    (check-options m {:debug-mode "-D"})
-    (check-option-values m {
-                            :random-seed "-S"
-                            :num-execution-slots "-num-slots"
-                            :base-classifier-name "-W"
-                            :majority-class-num-partitions "-I"
-                            :percentage-smote-instances-created "-P"
-                            
-                            }))))
 (defmethod make-classifier-options [:regression :partial-least-squares]
   ([kind algorithm m]
    (->> (check-options m {:debug "-D"
