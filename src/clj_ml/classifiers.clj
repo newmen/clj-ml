@@ -64,8 +64,10 @@
   (:import (java.util Date Random)
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
-           (weka.classifiers.trees J48 RandomForest M5P)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost Bagging RandomSubSpace Stacking CostSensitiveClassifier MetaCost)
+           (weka.classifiers.trees J48 RandomForest M5P HyperSMURF)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost 
+                                  Bagging RandomSubSpace Stacking CostSensitiveClassifier MetaCost
+                                  EasyEnsemble)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM PLSClassifier)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
@@ -331,6 +333,27 @@
                             :random-seed "-S"
                             :base-classifier-name "-W"}))))
 
+(defmethod make-classifier-options [:meta :easy-ensemble]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:majority-class-num-partitions "-I"
+                            :random-seed "-S"
+                            :num-execution-slots "-num-slots"
+                            :base-classifier-name "-W"}))))
+
+(defmethod make-classifier-options [:meta :hyper-smurf]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {
+                            :random-seed "-S"
+                            :num-execution-slots "-num-slots"
+                            :base-classifier-name "-W"
+                            :majority-class-num-partitions "-I"
+                            :percentage-smote-instances-created "-P"
+                            
+                            }))))
 (defmethod make-classifier-options [:regression :partial-least-squares]
   ([kind algorithm m]
    (->> (check-options m {:debug "-D"
@@ -532,6 +555,12 @@
 
      * :meta :meta-cost
 
+       This classifier should produce similar results to one created by passing the base learner to 
+        Bagging, which is in turn passed to a CostSensitiveClassifier operating on minimum expected cost. 
+        The difference is that MetaCost produces a single cost-sensitive classifier of the base learner, 
+        giving the benefits of fast classification and interpretable output (if the base learner itself is interpretable).
+      -from the description of MetaCost at https://weka.wikispaces.com/MetaCost
+
       Parameters: 
 
         - :num-bagging-iterations 
@@ -549,10 +578,84 @@
         - :base-classifier-name 
             Set the (string quoted) base classifier class name 
      * :meta :cost-sensitive
-     * :meta :stacking
+
+      Parameters: 
+
+  * :meta :stacking
+
+    Combines several classifiers using the stacking method. Can do classification or regression.
+    from Weka docs at http://weka.sourceforge.net/doc.dev/weka/classifiers/meta/Stacking.html.
+
+      Parameters: 
+        - :cross-validation-folds 
+            Set the number of cross validation folds 
+        -  :meta-classifier 
+            Set the class name of the meta classifier 
+        -  :random-seed 
+            Set the random seed 
+        -  :classifiers 
+            Set the name(s) of classifiers, followed by options
+  
      * :meta :random-subspace
+
+    This method constructs a decision tree based classifier that maintains highest accuracy on 
+    training data and improves on generalization accuracy as it grows in complexity. The classifier 
+    consists of multiple trees constructed systematically by pseudorandomly selecting subsets of components 
+    of the feature vector, that is, trees constructed in randomly chosen subspaces.
+    - from Weka docs at http://weka.sourceforge.net/doc.dev/weka/classifiers/meta/RandomSubSpace.html
+
+      Parameters: 
+        - :size-of-subspace 
+            Set the size of the subspace, as a function of percentage or absolute number of attributes 
+        - :num-iterations 
+            Set the number of iterations 
+        - :random-seed 
+            Set the random seed  
+        - :name-of-base-classifier 
+            Set the (class) name of the base classifier
+
+
      * :meta :bagging
-     * :meta :raced-incremental-logit-boost
+  
+    Class for bagging a classifier to reduce variance. 
+    Can do classification and regression depending on the base learner. 
+    - from Weka docs at http://weka.sourceforge.net/doc.dev/weka/classifiers/meta/Bagging.html
+
+      Parameters: 
+    - :num-bagging-iterations 
+        Set number of bagging iterations
+    -  :cost-file-name 
+        Read the cost matrix from file
+    -  :cost-file-directory 
+        Read the cost matrix file from directory
+    -  :cost-matrix 
+        Read the cost matrix as an argument
+    -  :size-of-bag 
+        Size of each bag as a percentage of training set size
+    -  :random-seed 
+        Set the random seed
+    -  :base-classifier-name 
+        Class name of base classifier
+  
+  * :meta :raced-incremental-logit-boost
+
+    Classifier for incremental learning of large datasets by way of racing logit-boosted committees.
+    - from Weka docs at http://weka.sourceforge.net/doc.packages/racedIncrementalLogitBoost/weka/classifiers/meta/RacedIncrementalLogitBoost.html
+
+      Parameters: 
+
+    - :committee-pruning-to-perform 
+        Comittee pruning to perform in the range 0 to 1.
+    - :minimum-number-of-chunks
+        Set the minimum chunk size
+    - :name-of-base-classifier 
+        Set the class name of base classifier
+    - :random-number-seed 
+        Set the random number seed
+    - :size-of-validation-set
+      Set the size of validation set
+    - :maximum-size-of-chunks 
+      Set the maximum number of chunks
 "
   (fn [kind algorithm & options] [kind algorithm]))
 
