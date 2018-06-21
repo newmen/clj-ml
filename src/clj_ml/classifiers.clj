@@ -234,6 +234,7 @@
     (check-options m {:debug "-D"
                       :break-ties "-B"
                       :print-classifiers "-print"
+                      :attribute-importance "-attribute-importance"
                       })
     (check-option-values m
                          {:num-trees-in-forest "-I"
