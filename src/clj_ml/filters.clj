@@ -141,6 +141,15 @@
 
 (deffilter string-to-word-vector)
 
+(defmethod make-filter-options :normalize
+  ([kind m]
+   (->> (extract-attributes m)
+        (check-options m {:unset-class "-unset-class-temporarily"})
+        (check-option-values m {:scale "-S"
+                                :translation "-T"}))))
+
+(deffilter normalize)
+
 (def attribute-types
   "Mapping of Weka's attribute types from clj-ml keywords to the -T flag's representation."
   {:numeric "NUM" :nominal "NOM" :string "STR" :date "DAT"})
@@ -206,6 +215,14 @@
 
 (deffilter resample-supervised)
 
+(defmethod make-filter-options :stratified-remove-folds-supervised
+  ([kind m]
+     (->> (check-option-values m {:num-folds "-N" :fold "-F" :seed "-S"})
+          (check-options m { :invert "-V"}))))
+
+(deffilter stratified-remove-folds-supervised)
+
+
 (defmethod make-filter-options :replace-missing-values
   ([kind m]
      (check-options m {:unset-class-temporarily "-unset-class-temporarily"})))
@@ -231,6 +248,13 @@
 (deffilter clj-streamable)
 (deffilter clj-batch)
 
+(defmethod make-filter-options :random-subset
+  ([kind m]
+     (->> (check-options m {:debug "-D"})
+          (check-option-values m {:num-attributes "-N"
+                                  :random-seed "-S"}))))
+
+(deffilter random-subset)
 ;; Creation of filters
 
 (def filter-aliases
@@ -252,8 +276,10 @@
    :resample-supervised weka.filters.supervised.instance.Resample
    :select-append-attributes weka.filters.unsupervised.attribute.Copy
    :replace-missing-values weka.filters.unsupervised.attribute.ReplaceMissingValues
-   :project-attributes weka.filters.unsupervised.attribute.Remove})
-
+   :project-attributes weka.filters.unsupervised.attribute.Remove
+   :stratified-remove-folds-supervised weka.filters.supervised.instance.StratifiedRemoveFolds
+   :random-subset weka.filters.unsupervised.attribute.RandomSubset
+   :normalize weka.filters.unsupervised.attribute.Normalize})
 
 (defn make-filter
   "Creates a filter for the provided attributes format. The first argument must be a symbol
@@ -505,6 +531,28 @@
         - :invert
           Inverts the selection; can only be true if :replacement is false (boolean)
 
+    * :stratified-remove-folds-supervised
+
+      \"This filter takes a dataset and outputs a specified fold for cross validation.
+        If you do not want the folds to be stratified use the unsupervised version.\"
+      -- from Weka JavaDoc
+
+      Parameters:
+
+        - :num-folds
+          Specifies number of folds dataset is split into. (default 10)
+
+        - :fold
+          Specifies which fold is selected. (default 1)
+
+        - :seed
+          Specifies random number seed. (default 0, no randomizing)
+
+        - :invert
+          Specifies if inverse of selection is to be output.
+
+
+
     * :select-append-attributes
 
       Append a copy of the selected columns at the end of the dataset.
@@ -614,7 +662,7 @@
    The application of this filter is equivalent to the consecutive application of
    make-filter and apply-filter."
   [kind options dataset]
-  (let [opts (if (nil? (:dataset-format options)) (conj options {:dataset-format dataset}))
+  (let [opts (cond-> options (nil? (:dataset-format options)) (conj {:dataset-format dataset}))
         filter (make-filter kind opts)]
     (filter-apply filter dataset)))
 

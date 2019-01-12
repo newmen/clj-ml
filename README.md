@@ -2,11 +2,13 @@
 
 A machine learning library for Clojure built on top of Weka and friends.
 
+This library (specifically, some dependencies) requires Java 1.7+.
+
 ## Installation
 
 ### Installing from Clojars
 
-    [cc.artifice/clj-ml "0.5.0-SNAPSHOT"]
+    [cc.artifice/clj-ml "0.8.5"]
 
 ### Installing from Maven
 
@@ -15,7 +17,7 @@ A machine learning library for Clojure built on top of Weka and friends.
     <dependency>
       <groupId>cc.artifice</groupId>
       <artifactId>clj-ml</artifactId>
-      <version>0.4.0</version>
+      <version>0.8.5</version>
     </dependency>
 
 ## Supported algorithms
@@ -35,6 +37,7 @@ A machine learning library for Clojure built on top of Weka and friends.
    * Naive Bayes
    * Multilayer perceptrons
    * Support vector machines (grid-based training), SMO, Spegasos
+   * Raced Incremental Logit Boost
 
  * Regression
    * Linear
@@ -570,6 +573,11 @@ First globally replace all double quoted strings `""foo""` with
 backslash quoted strings: `\"foo\"`. Weka does not handle the former.
 
 ```clojure
+user> (require '[clj-ml.io :refer [load-instances]]
+               '[clj-ml.data :refer [dataset-set-class dataset-class-index dataset-class-name]]
+               '[clj-ml.filters :refer [make-apply-filter]]
+               '[clj-ml.classifiers :refer [classifier-evaluate make-classifier]])
+nil
 user> (def titanicds (load-instances :csv "file:///home/josh/git/clj-ml/titanic-train.csv"))
 user> titanicds
 #<Instances @relation stream
@@ -683,8 +691,10 @@ Ok, looks good, let's try training on the full training data and
 testing on the testing data.
 
 ```clojure
+user> (require '[clj-ml.data :refer [dataset-as-maps dataset-seq]]
+               '[clj-ml.classifiers :refer [classifier-train classifier-classify]])
 user> (def titanic-testds (load-instances :csv "file:///home/josh/git/clj-ml/titanic-test.csv"))
-
+nil
 user> (def titanic-test-passids (map (comp int :PassengerId)
                                      (dataset-as-maps titanic-testds)))
 #'user/titanic-test-passids
@@ -759,6 +769,16 @@ Survived,PassengerId
 0,902
 ...
 ```
+
+## How to add a Weka classifier
+
+- In `classifiers.clj`:
+  - Add the appropriate import to the top of the file.
+  - Create another implementation of `make-classifier-options` (using `defmethod`, like the others). At this point, you must decide the pair of keywords that identify your algorithm, such as `:decision-tree :c45`. List all the Weka options that the classifier accepts. Use `check-options` for options that are either present or absent, and `check-option-values` for options that require a value in addition to the option.
+  - Add documentation to the `(defmulti make-classifier ...)` docstring.
+  - Create another implementation of `make-classifier` (using `defmethod`, like the others).
+- Ideally, add some test cases in `classifers_test.clj`.
+
 
 ## Thanks YourKit!
 

@@ -9,7 +9,8 @@
             SymmetricalUncertAttributeEval ChiSquaredAttributeEval
             AttributeSelection CfsSubsetEval
             ;; search
-            GreedyStepwise BestFirst GeneticSearch Ranker RankSearch LinearForwardSelection]))
+            GreedyStepwise BestFirst Ranker RankSearch LinearForwardSelection]
+           [weka.classifiers.bayes.net.search.local GeneticSearch]))
 
 (defmulti  #^{:skip-wiki true}
   make-obj-options

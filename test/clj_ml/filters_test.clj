@@ -121,6 +121,15 @@
     (is (= weka.filters.supervised.instance.Resample
            (class f)))))
 
+(deftest make-filter-stratified-remove-folds-supervised
+  (let [ds (dataset-set-class
+            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            :class)
+        f (make-filter :stratified-remove-folds-supervised {:dataset-format ds :num-folds 3 :fold 1 :seed 2016 })]
+    (is (= weka.filters.supervised.instance.StratifiedRemoveFolds
+           (class f)))))
+
 (deftest make-filter-remove-attributes
   (let [ds (make-dataset :test [:a :b {:c [:g :m]}]
                          [ [1 2 :g]
@@ -199,10 +208,11 @@
 
 (deftest make-apply-filter-reorder-attributes
   (let [ds (make-dataset :test [{:class [:yes :no]} {:s nil} :n]
-                         [[:yes "Hello" 55] [:no "World" -100]]) 
+                         [[:yes "Hello" 55] [:no "World" -100]])
         ds2 (make-apply-filter :reorder-attributes {:attributes ["2-last" "1"]} ds)]
-    (is (= (str ds (str (make-dataset :test [{:s nil} :n {:class [:yes :no]}]
-                                      [["Hello" 55 :yes] ["World" -100 :no]])))))))
+    (is (= (map instance-to-map (dataset-seq ds2))
+           (map instance-to-map (dataset-seq (make-dataset :test [{:s nil} :n {:class [:yes :no]}]
+                                                           [["Hello" 55 :yes] ["World" -100 :no]])))))))
 
 (deftest make-apply-filter-resample-unsupervised
   (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
@@ -217,6 +227,24 @@
             :class)
         ds2 (make-apply-filter :resample-supervised {:seed 10 :size-percent 50 :no-replacement true :bias 1} ds)]
     (is (= 75 (dataset-count ds2)))))
+
+(deftest make-apply-filter-random-subset
+  (let [num-att 2
+        ds (dataset-set-class
+            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            :class)
+        ds2 (make-apply-filter :random-subset {:seed 10 :num-attributes num-att} ds)]
+    ;;the class is the third attribute, hence the count has to be decremented
+    (is (= num-att (-> (dataset-as-vecs ds2) first count dec)))))
+
+(deftest make-apply-filter-normalize
+  (let [ds (dataset-set-class
+             (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
+                 (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+             :class)
+        ds2 (make-apply-filter :normalize {:scale 1.0 :translation 0.0 :unset-class false} ds)]
+    (is (every? (fn [v] (every? #(<= 0.0 % 1.0) (butlast v))) (dataset-as-vecs ds2)))))
 
 (deftest make-apply-filters-test
   (let [ds (make-dataset :test [:a :b {:c [:g :m]}]
@@ -281,7 +309,7 @@
                                   (-> instance
                                       instance-to-vector
                                       (conj (- a-max (.value instance 0)))
-                                      (#(weka.core.Instance. 1 (into-array Double/TYPE %)))
+                                      (#(weka.core.DenseInstance. 1 (into-array Double/TYPE %)))
                                       add-instance))
                                 result))
         res (clj-batch ds

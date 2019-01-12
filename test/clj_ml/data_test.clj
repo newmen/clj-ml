@@ -7,19 +7,39 @@
                               [:a :b]
                               1)
         inst (make-instance dataset [1 2])]
-    (is (= (class inst)
-           weka.core.Instance))
+    (is (instance? weka.core.Instance inst))
     (is (= 2 (.numValues inst)))
     (is (= 1.0 (.value inst 0)))
-    (is (= 2.0 (.value inst 1)))))
+    (is (= 2.0 (.value inst 1)))
+    (is (= weka.core.DenseInstance (class inst)))))
+
+(deftest make-instance-sparse
+  (let [dataset (make-dataset :test
+                              [:a :b :c]
+                              1)
+        inst (make-sparse-instance dataset {0 1.1, 2 3.3})
+        ;; Double/NaN is used for explicit missing values; all others not specified are assumed to be 0.0
+        inst2 (make-sparse-instance dataset 2.0 {1 2.2, 2 Double/NaN})]
+    (is (instance? weka.core.Instance inst))
+    (is (= 2 (.numValues inst)))
+    (is (= 1.1 (.value inst 0)))
+    (is (= 0.0 (.value inst 1))) ;; implicit zero value
+    (is (= 3.3 (.value inst 2)))
+    (is (= weka.core.SparseInstance (class inst)))
+    (is (instance? weka.core.Instance inst2))
+    (is (= 2 (.numValues inst2)))
+    (is (= 0.0 (.value inst2 0))) ;; implicit zero value
+    (is (= 2.2 (.value inst2 1)))
+    (is (Double/isNaN (.value inst2 2))) ;; explicit missing value
+    (is (= 2.0 (.weight inst2)))
+    (is (= weka.core.SparseInstance (class inst2)))))
 
 (deftest make-instance-ord
   (let [dataset (make-dataset :test
                               [:a {:b [:b1 :b2]}]
                               1)
         inst (make-instance dataset [1 :b1])]
-    (is (= (class inst)
-           weka.core.Instance))
+    (is (instance? weka.core.Instance inst))
     (is (= 2 (.numValues inst)))
     (is (= 1.0 (.value inst 0)))
     (is (= "b1" (.stringValue inst 1)))))
@@ -29,8 +49,7 @@
                               [:a :b]
                               1)
         inst (make-instance dataset [1 nil])]
-    (is (= (class inst)
-           weka.core.Instance))
+    (is (instance? weka.core.Instance inst))
     (is (= 2 (.numValues inst)))
     (is (= 1.0 (.value inst 0)))
     (is (Double/isNaN (.value inst 1)))))
@@ -73,10 +92,22 @@
                               [:age :iq {:favorite-color [:red :blue :green]}]
                               [[12 100 :red]
                                [14 110 :blue]
-                               [ 25 120 :green]])]
+                               [25 120 :green]])]
     (is (= "test" (dataset-name dataset)))
     (is (= "new-name" (dataset-name (dataset-set-name dataset "new-name"))))
     (is (= "new-name-extra" (dataset-name (dataset-append-name dataset "-extra"))))))
+
+(deftest dataset-sparse
+  (let [dataset (make-sparse-dataset :test
+                                     [:age :iq {:favorite-color [:none :red :blue :green]}]
+                                     [{0 12 2 :red}
+                                      {1 110 2 :blue}
+                                      {0 Double/NaN 1 120}]
+                                     {:weight 2})]
+    (is (= "test" (dataset-name dataset)))
+    (is (= "{0 12,2 red},{2}" (str (first (dataset-seq dataset)))))
+    (is (= "{1 110,2 blue},{2}" (str (second (dataset-seq dataset)))))
+    (is (= "{0 ?,1 120},{2}" (str (last (dataset-seq dataset)))))))
 
 (deftest dataset-count-1
   (let [dataset (make-dataset :test
@@ -242,7 +273,37 @@
         {:keys [dataset docids]} (docs-to-dataset docs "bananas-model" "."
                                                   :stemmer true :lowercase false)
         docid-ds-vecs (apply hash-map (interleave docids (dataset-as-vecs dataset)))]
-    (is (= [:no 0.4804530139182014 0.0 0.4804530139182014 0.0]
+    (is (= [:no
+            0.4804530139182014
+            0.0
+            0.4804530139182014
+            0.0
+            0.0
+            0.0
+            0.4804530139182014
+            0.0
+            0.0
+            0.0
+            0.4804530139182014
+            0.0
+            0.0
+            0.0
+            0.4804530139182014]
            (get docid-ds-vecs 10)))
-    (is (= [:yes 0.0 0.4804530139182014 0.0 0.4804530139182014 0.0 0.4804530139182014 0.0 0.4804530139182014]
+    (is (= [:yes
+            0.0
+            0.4804530139182014
+            0.0
+            0.4804530139182014
+            0.0
+            0.4804530139182014
+            0.0
+            0.4804530139182014
+            0.4804530139182014
+            0.0
+            0.0
+            0.4804530139182014
+            0.4804530139182014
+            0.4804530139182014
+            0.0]
            (get docid-ds-vecs 11)))))

@@ -167,8 +167,10 @@
         ds (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
         _  (dataset-set-class ds 2)
         _  (classifier-train c ds)
-        res (classifier-evaluate c :cross-validation ds 2)]
-    (is (= 29 (count (keys res))))))
+        res (classifier-evaluate c :cross-validation ds 2)
+        randres (classifier-evaluate c :cross-validation ds 2 {:random-seed 29}) ]
+    (is (= 28 (count (keys res))))
+    (is (= 28 (count (keys randres))))))
 
 (deftest classifier-evaluate-cross-validation-grid
   (let [c (make-classifier :support-vector-machine :libsvm-grid)
@@ -185,6 +187,17 @@
                  (instance-set-class-missing))]
     (classifier-train c ds)
     (is (= :m (classifier-classify c inst)))))
+
+(deftest test-classifier-predict-probability
+  (let [c (make-classifier :decision-tree :c45)
+        ds (-> (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
+               (dataset-set-class 2))
+        inst (-> (first (dataset-seq ds))
+                 (instance-set-class-missing))
+        _ (classifier-train c ds)
+        res (classifier-predict-probability c inst)]
+    (is (= 2 (count res)))
+    (is (every? number? res))))
 
 (deftest test-classifier-label
   (let [c (make-classifier :decision-tree :c45)
@@ -206,3 +219,86 @@
     (classifier-update c ds)
     (classifier-update c inst)
     (is true)))
+
+(deftest make-classifiers-options-raced-incremental-logit-boost
+  (fact
+   (let [options (make-classifier-options
+                  :meta :raced-incremental-logit-boost
+                  {:use-resampling-for-boosting true :debug-mode true
+                   :committee-pruning-to-perform 0 :minimum-number-of-chunks 200
+                   :name-of-base-classifier "weka.classifiers.trees.DecisionStump"
+                   :random-number-seed 20 :size-of-validation-set 200
+                   :maximum-size-of-chunks 400})]
+     options => (just ["-Q" "-D" "-P" "0" "-C" "200" "-W" "weka.classifiers.trees.DecisionStump" "-S" "20" "-V" "200" "-M" "400"] :in-any-order))))
+
+(deftest make-classifier-raced-incremental-logit-boost
+  (let [c (make-classifier :meta :raced-incremental-logit-boost)]
+    (is (= (class c)
+           weka.classifiers.meta.RacedIncrementalLogitBoost))))
+
+(deftest update-updateable-classifier-logit-boost
+  (let [c (clj-ml.classifiers/make-classifier :meta :raced-incremental-logit-boost)
+        ds (clj-ml.data/make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
+        _  (dataset-set-class ds 2)
+        inst (make-instance ds {:a 56 :b 45 :c :m})]
+    (classifier-train  c ds)
+    (classifier-update c ds)
+    (classifier-update c inst)
+    (is true)))
+
+(deftest make-classifiers-options-pls
+  (fact
+   (let [options (make-classifier-options
+                  :regression :partial-least-squares
+                  {:algorithm "PLS1" :type-of-preprocessing "standardize"})]
+     options => (just ["-A" "PLS1" "-P" "standardize"] :in-any-order))))
+
+(deftest make-classifier-pls
+  (let [c (make-classifier :regression :partial-least-squares)]
+    (is (= (class c)
+           weka.classifiers.functions.PLSClassifier))))
+
+(deftest make-classifier-random-forest
+  (let [c (make-classifier :decision-tree :random-forest
+                           {:num-trees-in-forest 10
+                            :parallelism 2}
+                           )]
+    (is (= (class c)
+           weka.classifiers.trees.RandomForest))))
+
+(deftest make-classifier-bagging
+  (let [c (make-classifier :meta :bagging
+                           {:size-of-bag 10
+                            :parallelism 2}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.Bagging))))
+
+(deftest make-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace
+                           {:size-of-subspace 10
+                            :num-iterations 20}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.RandomSubSpace))))
+
+(deftest make-classifier-stacking
+  (let [c (make-classifier :meta :stacking
+                           {:cross-validation-folds 3 
+                            :random-seed 20}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.Stacking))))
+
+(deftest make-classifier-boosted-stump
+  (let [c (make-classifier :decision-tree :boosted-stump
+                           {:weak-learning-class "weka.classifiers.trees.DecisionStump"
+                              :num-iterations 10 
+                              :random-seed 29 
+                              :percentage-weight-mass 90 
+                              :log-likelihood-improvement-threshold 0.9 
+                              :z-max-threshold-for-responses 3 
+                              :shrinkage-parameter 1}
+                           )]
+    (is (= (class c)
+           weka.classifiers.meta.LogitBoost))))

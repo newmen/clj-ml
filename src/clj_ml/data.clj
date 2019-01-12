@@ -16,13 +16,18 @@
   (:require [clojure.string :as str])
   (:require [clojure.set :as set])
   (:use [clojure.java.io :only [file]])
-  (:import (weka.core Instance Instances FastVector Attribute)
+  (:import (weka.core Instance DenseInstance SparseInstance Instances FastVector Attribute)
            (cljml ClojureInstances)))
 
 (declare dataset-seq)
 (declare instance-index-attr dataset-index-attr)
 
 ;; Common functions
+
+(defn enumeration-or-nil-seq [s]
+  "Returns the result of enumeration-seq if the input sequence is not nil,
+  an empty list otherwise"
+  (if (nil? s) '() (enumeration-seq s)))
 
 (defn is-instance?
   "Checks if the provided object is an instance"
@@ -132,10 +137,9 @@
 (defn make-instance
   "Creates a new dataset instance from a vector"
   ([dataset vector]
-     (make-instance dataset 1 vector))
+   (make-instance dataset 1 vector))
   ([dataset weight vector]
-     (let [^Instance inst (new Instance
-                               (count vector))]
+   (let [^Instance inst (DenseInstance. (count vector))]
        (do (.setDataset inst dataset)
            (loop [vs vector
                   c 0]
@@ -159,6 +163,38 @@
                  (recur (rest vs)
                         (+ c 1)))))))))
 
+(defn make-sparse-instance
+  "Creates a new dataset instance from a map of index-value pairs (as
+  a clojure map), where index starts at 0. Use explicit Double/NaN for
+  missing values; all other values are assumed to be zeros."
+  ([dataset valmap]
+   (make-sparse-instance dataset 1 valmap))
+  ([^Instances dataset weight valmap]
+   (let [^SparseInstance inst (SparseInstance. (.numAttributes dataset))]
+     (do (.setDataset inst dataset)
+         (loop [idxs (range (.numAttributes dataset))]
+           (if (empty? idxs)
+             (doto inst (.setWeight (double weight)))
+             (do
+               (let [idx (first idxs)
+                     val (get valmap idx)]
+                 (if (nil? val)
+                   (.setValue inst idx 0.0)
+                   (if (or (keyword? val) (string? val))
+                     ;; this is a nominal entry in keyword or string form
+                     (.setValue inst idx (name val))
+                     (if (sequential? val)
+                       ;; this is a map of labels
+                       (let [k (name (nth val 0))
+                             val2 (nth val 1)
+                             ik  (int (instance-index-attr inst k))]
+                         (if (or (keyword? val2) (string? val2))
+                           ;; this is a nominal entry in keyword or string form
+                           (.setValue inst ik ^String (name val2))
+                           (.setValue inst ik val2)))
+                       ;; A double value for the entry
+                       (.setValue inst idx (double val))))))
+               (recur (rest idxs)))))))))
 
 (defn- parse-attributes
   "Builds a set of attributes for a dataset parsed from the given array"
@@ -188,6 +224,7 @@
      (let [options (first-or-default opts {})
            weight (get options :weight 1)
            class-attribute (get options :class)
+           sparse? (get options :sparse)
            ds (if (sequential? capacity-or-labels)
                 ;; we have received a sequence instead of a number, so we initialize data
                 ;; instances in the dataset
@@ -196,7 +233,9 @@
                     (if (empty? vs)
                       dataset
                       (do
-                        (let [inst (make-instance dataset weight (first vs))]
+                        (let [inst (if sparse?
+                                     (make-sparse-instance dataset weight (first vs))
+                                     (make-instance dataset weight (first vs)))]
                           (.add dataset inst))
                         (recur (rest vs))))))
                 ;; we haven't received a vector so we create an empty dataset
@@ -221,6 +260,12 @@
            (.setClassIndex ds index-class-attribute)))
        ds)))
 
+(defn make-sparse-dataset
+  "Creates a new dataset, empty or with the provided instances and options"
+  [ds-name attributes capacity-or-labels & opts]
+  (apply make-dataset ds-name attributes capacity-or-labels [(merge (first-or-default opts {})
+                                                                    {:sparse true})]))
+
 ;; dataset information
 
 (defn dataset-name
@@ -242,9 +287,9 @@
   "Returns map of the labels (possible values) for the given nominal attribute as the keys
    with the values being the attributes index. "
   [^Attribute attr]
-  (let [values (enumeration-seq (.enumerateValues attr))]
+  (let [values (enumeration-or-nil-seq (.enumerateValues attr))]
     (if (empty? values)
-      :not-nominal
+      {}
       (reduce (fn [m ^String val]
                 (assoc m (keyword val) (.indexOfValue attr val)))
               {}
@@ -253,12 +298,12 @@
 (defn attribute-labels
   "Returns the labels (possible values) for the given nominal attribute as keywords."
   [^Attribute attr]
-  (set (map keyword (enumeration-seq (.enumerateValues attr)))))
+  (set (map keyword (enumeration-or-nil-seq (.enumerateValues attr)))))
 
 (defn attribute-labels-as-strings
   "Returns the labels (possible values) for the given nominal attribute as strings."
   [^Attribute attr]
-  (set (enumeration-seq (.enumerateValues attr))))
+  (set (enumeration-or-nil-seq (.enumerateValues attr))))
 
 (defn dataset-labels-at [dataset-or-instance index-or-name]
   "Returns the lables (possible values) for a nominal attribute at the provided position"
@@ -277,7 +322,7 @@
    (fn [so-far ^Attribute attr]
      (conj so-far
            (if (.isNominal attr)
-             {(keyword-name attr) (map keyword (enumeration-seq (.enumerateValues attr)))}
+             {(keyword-name attr) (map keyword (enumeration-or-nil-seq (.enumerateValues attr)))}
              (keyword-name attr))))
    []
    (attributes dataset)))
@@ -351,7 +396,7 @@ If the class is nominal then the string value (not keyword) is returned."
 (defn instance-to-list
   "Builds a list with the values of the instance"
   [^Instance instance]
-  (map (partial instance-value-at instance) (range (.numValues instance))))
+  (map (partial instance-value-at instance) (range (.numAttributes instance))))
 
 (defn instance-to-vector
   "Builds a vector with the values of the instance"
@@ -376,7 +421,7 @@ If the class is nominal then the string value (not keyword) is returned."
   (if (= (class dataset)
          ClojureInstances)
     (seq dataset)
-    (seq (enumeration-seq (.enumerateInstances ^Instances dataset)))))
+    (seq (enumeration-or-nil-seq (.enumerateInstances ^Instances dataset)))))
 
 (defn dataset-as-maps
   "Returns a lazy sequence of the dataset represetned as maps.

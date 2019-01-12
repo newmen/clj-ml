@@ -4,7 +4,7 @@
 ;;
 
 (ns #^{:author "Antonio Garrote <antoniogarrote@gmail.com>"}
-  clj-ml.classifiers
+      clj-ml.classifiers
   "This namespace contains several functions for building classifiers using different
    classification algorithms: Bayes networks, multilayer perceptron, decision tree or
    support vector machines are available. Some of these classifiers have incremental
@@ -66,128 +66,128 @@
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
            (weka.classifiers.rules M5Rules)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest
-                                  AttributeSelectedClassifier Bagging RandomSubSpace)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost
+                                  AttributeSelectedClassifier Bagging RandomSubSpace Stacking)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
            (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic
-                                       PaceRegression SPegasos LibSVM SMOreg)
-           (weka.classifiers Classifier Evaluation)))
+                                       PaceRegression SPegasos LibSVM SMOreg PLSClassifier)
+           (weka.classifiers AbstractClassifier Classifier Evaluation)))
 
 
 ;; Setting up classifier options
 
 (defmulti #^{:skip-wiki true}
-  make-classifier-options
+            make-classifier-options
   "Creates the right parameters for a classifier. Returns the parameters as a Clojure vector."
   (fn [kind algorithm map] [kind algorithm]))
 
 (defmethod make-classifier-options [:lazy :ibk]
   ([kind algorithm m]
-     (->> (check-options m
-                         {:inverse-weighted "-I"
-                          :similarity-weighted "-F"
-                          :no-normalization "-N"})
-          (check-option-values m
-                               {:num-neighbors "-K"}))))
+   (->> (check-options m
+                       {:inverse-weighted "-I"
+                        :similarity-weighted "-F"
+                        :no-normalization "-N"})
+        (check-option-values m
+                             {:num-neighbors "-K"}))))
 
 (defmethod make-classifier-options [:decision-tree :c45]
   ([kind algorithm m]
-     (->> (check-options m
-                         {:unpruned "-U"
-                          :reduced-error-pruning "-R"
-                          :only-binary-splits "-B"
-                          :no-raising "-S"
-                          :no-cleanup "-L"
-                          :laplace-smoothing "-A"})
-          (check-option-values m
-                               {:pruning-confidence "-C"
-                                :minimum-instances "-M"
-                                :pruning-number-folds "-N"
-                                :random-seed "-Q"}))))
+   (->> (check-options m
+                       {:unpruned "-U"
+                        :reduced-error-pruning "-R"
+                        :only-binary-splits "-B"
+                        :no-raising "-S"
+                        :no-cleanup "-L"
+                        :laplace-smoothing "-A"})
+        (check-option-values m
+                             {:pruning-confidence "-C"
+                              :minimum-instances "-M"
+                              :pruning-number-folds "-N"
+                              :random-seed "-Q"}))))
 
 (defmethod make-classifier-options [:bayes :naive]
   ([kind algorithm m]
-     (check-options m
-                    {:kernel-estimator "-K"
-                     :supervised-discretization "-D"
-                     :old-format "-O"})))
+   (check-options m
+                  {:kernel-estimator "-K"
+                   :supervised-discretization "-D"
+                   :old-format "-O"})))
 
 (defmethod make-classifier-options [:neural-network :multilayer-perceptron]
   ([kind algorithm m]
-     (->> (check-options m
-                         {:no-nominal-to-binary "-B"
-                          :no-numeric-normalization "-C"
-                          :no-normalization "-I"
-                          :no-reset "-R"
-                          :learning-rate-decay "-D"})
-          (check-option-values m
-                               {:learning-rate "-L"
-                                :momentum "-M"
-                                :epochs "-N"
-                                :percentage-validation-set "-V"
-                                :random-seed "-S"
-                                :threshold-number-errors "-E"
-                                :hidden-layers-string "-H"}))))
+   (->> (check-options m
+                       {:no-nominal-to-binary "-B"
+                        :no-numeric-normalization "-C"
+                        :no-normalization "-I"
+                        :no-reset "-R"
+                        :learning-rate-decay "-D"})
+        (check-option-values m
+                             {:learning-rate "-L"
+                              :momentum "-M"
+                              :epochs "-N"
+                              :percentage-validation-set "-V"
+                              :random-seed "-S"
+                              :threshold-number-errors "-E"
+                              :hidden-layers-string "-H"}))))
 
 (defmethod make-classifier-options [:support-vector-machine :smo]
   ([kind algorithm m]
-     (->> (check-options m {:fit-logistic-models "-M"})
-          (check-option-values m
-                               {:complexity-constant "-C"
-                                :normalize "-N"
-                                :tolerance "-L"
-                                :epsilon-roundoff "-P"
-                                :folds-for-cross-validation "-V"
-                                :random-seed "-W"}))))
+   (->> (check-options m {:fit-logistic-models "-M"})
+        (check-option-values m
+                             {:complexity-constant "-C"
+                              :normalize "-N"
+                              :tolerance "-L"
+                              :epsilon-roundoff "-P"
+                              :folds-for-cross-validation "-V"
+                              :random-seed "-W"}))))
 
 (defmethod make-classifier-options [:support-vector-machine :spegasos]
   ([kind algorithm m]
-     (->> (check-options m {:no-normalization "-N"
-                            :no-replace-missing"-M"})
-          (check-option-values m
-                               {:loss-fn "-F"
-                                :epochs "-E"
-                                :lambda "-L"}))))
+   (->> (check-options m {:no-normalization "-N"
+                          :no-replace-missing "-M"})
+        (check-option-values m
+                             {:loss-fn "-F"
+                              :epochs "-E"
+                              :lambda "-L"}))))
 
 (defmethod make-classifier-options [:support-vector-machine :libsvm]
   ([kind algorithm m]
-     (->> (check-options m {:normalization "-Z"
-                            :no-nominal-to-binary "-J"
-                            :no-missing-value-replacement "-V"
-                            :no-shrinking-heuristics "-H"
-                            :probability-estimates "-B"})
-          (check-option-values m
-                               {:svm-type "-S"
-                                :kernel-type "-K"
-                                :kernel-degree "-D"
-                                :kernel-gamma "-G"
-                                :kernel-coef0 "-R"
-                                :param-C "-C"
-                                :param-nu "-N"
-                                :loss-epsilon "-P"
-                                :memory-cache "-M"
-                                :tolerance-of-termination "-E"
-                                :class-weight "-W"
-                                :random-seed "-seed"}))))
+   (->> (check-options m {:normalization "-Z"
+                          :no-nominal-to-binary "-J"
+                          :no-missing-value-replacement "-V"
+                          :no-shrinking-heuristics "-H"
+                          :probability-estimates "-B"})
+        (check-option-values m
+                             {:svm-type "-S"
+                              :kernel-type "-K"
+                              :kernel-degree "-D"
+                              :kernel-gamma "-G"
+                              :kernel-coef0 "-R"
+                              :param-C "-C"
+                              :param-nu "-N"
+                              :loss-epsilon "-P"
+                              :memory-cache "-M"
+                              :tolerance-of-termination "-E"
+                              :class-weight "-W"
+                              :random-seed "-seed"}))))
 
 (defmethod make-classifier-options [:support-vector-machine :libsvm-grid]
   ([kind algorithm m]
-     (->> (check-options m {:normalization "-Z"
-                            :no-nominal-to-binary "-J"
-                            :no-missing-value-replacement "-V"
-                            :no-shrinking-heuristics "-H"
-                            :probability-estimates "-B"})
-          (check-option-values m
-                               {:svm-type "-S"
-                                :kernel-type "-K"
-                                :kernel-degree "-D"
-                                :kernel-coef0 "-R"
-                                :param-nu "-N"
-                                :loss-epsilon "-P"
-                                :memory-cache "-M"
-                                :tolerance-of-termination "-E"
-                                :class-weight "-W"
-                                :random-seed "-seed"}))))
+   (->> (check-options m {:normalization "-Z"
+                          :no-nominal-to-binary "-J"
+                          :no-missing-value-replacement "-V"
+                          :no-shrinking-heuristics "-H"
+                          :probability-estimates "-B"})
+        (check-option-values m
+                             {:svm-type "-S"
+                              :kernel-type "-K"
+                              :kernel-degree "-D"
+                              :kernel-coef0 "-R"
+                              :param-nu "-N"
+                              :loss-epsilon "-P"
+                              :memory-cache "-M"
+                              :tolerance-of-termination "-E"
+                              :class-weight "-W"
+                              :random-seed "-seed"}))))
 
 (defmethod make-classifier-options [:support-vector-machine :smo-regression]
   ([kind algorithm m]
@@ -200,80 +200,119 @@
 
 (defmethod make-classifier-options [:regression :linear]
   ([kind algorithm m]
-     (->> (check-options m {:debug "-D"
-                            :keep-colinear "-C"})
-          (check-option-values m
-                               {:attribute-selection "-S"
-                                :ridge "-R"}))))
+   (->> (check-options m {:debug "-D"
+                          :keep-colinear "-C"})
+        (check-option-values m
+                             {:attribute-selection "-S"
+                              :ridge "-R"}))))
 
 (defmethod make-classifier-options [:regression :logistic]
   ([kind algorithm m]
-     (->> (check-options m {:debug "-D"})
-          (check-option-values m
-                               {:max-iterations "-S"
-                                :ridge "-R"}))))
+   (->> (check-options m {:debug "-D"})
+        (check-option-values m
+                             {:max-iterations "-S"
+                              :ridge "-R"}))))
 
 (defmethod make-classifier-options [:regression :pace]
   ([kind algorithm m]
-     (->> (check-options m {:debug "-D"})
-          (check-option-values m
-                               {:shrinkage "-S"
-                                :estimator "-E"}))))
+   (->> (check-options m {:debug "-D"})
+        (check-option-values m
+                             {:shrinkage "-S"
+                              :estimator "-E"}))))
 
 (defmethod make-classifier-options [:regression :boosted-regression]
   ([kind algorithm m]
-     (->> (check-options m {:debug "-D"})
-          (check-option-values m
-                               {:threshold "-S"
-                                :num-iterations "-I"
-                                :weak-learning-class "-W"}))))
+   (->> (check-options m {:debug "-D"})
+        (check-option-values m
+                             {:threshold "-S"
+                              :num-iterations "-I"
+                              :weak-learning-class "-W"}))))
 
 (defmethod make-classifier-options [:decision-tree :boosted-stump]
   ([kind algorithm m]
-     (->> (check-options m {:debug "-D"
-                            :resampling "-Q"})
-          (check-option-values m
-                               {:weak-learning-class "-W"
-                                :num-iterations "-I"
-                                :random-seed "-S"
-                                :percentage-weight-mass "-P"
-                                :folds-for-cross-validation "-F"
-                                :runs-for-cross-validation "-R"
-                                :log-likelihood-improvement-threshold "-L"
-                                :shrinkage-parameter "-H"}))))
+   (->> (check-options m {:debug "-D"
+                          :resampling "-Q"})
+        (check-option-values m
+                             {:weak-learning-class "-W"
+                              :num-iterations "-I"
+                              :random-seed "-S"
+                              :percentage-weight-mass "-P"
+                              :log-likelihood-improvement-threshold "-L"
+                              :z-max-threshold-for-responses "-Z"
+                              :shrinkage-parameter "-H"}))))
 
 (defmethod make-classifier-options [:decision-tree :random-forest]
   ([kind algorithm m]
-     (->>
-      (check-options m {:debug "-D"})
-      (check-option-values m
-                           {:num-trees-in-forest "-I"
-                            :num-features-to-consider "-K"
-                            :random-seed "-S"
-                            :depth "-depth"
-                            :num-slots "-num-slots"}))))
+   (->>
+    (check-options m {:debug "-D"
+                      :break-ties "-B"
+                      :print-classifiers "-print"
+                      })
+    (check-option-values m
+                         {:num-trees-in-forest "-I"
+                          :num-features-to-consider "-K"
+                          :random-seed "-S"
+                          :depth "-depth"
+                          :size-of-bag "-P"
+                          :parallelism "-num-slots" 
+                          :min-num-instance-per-leaf "-M"
+                          :min-variance-for-split "-V"
+                          }))))
 
 (defmethod make-classifier-options [:decision-tree :rotation-forest]
   ([kind algorithm m]
-     (->>
-      (check-options m {:debug "-D"})
-      (check-option-values m
-                           {:num-iterations "-I"
-                            :use-number-of-groups "-N"
-                            :min-attribute-group-size "-G"
-                            :max-attribute-group-size "-H"
-                            :percentage-of-instances-to-remove "-P"
-                            :filter "-F"
-                            :random-seed "-S"
-                            :weak-learning-class "-W"}))))
+   (->>
+    (check-options m {:debug "-D"})
+    (check-option-values m
+                         {:num-iterations "-I"
+                          :use-number-of-groups "-N"
+                          :min-attribute-group-size "-G"
+                          :max-attribute-group-size "-H"
+                          :percentage-of-instances-to-remove "-P"
+                          :filter "-F"
+                          :random-seed "-S"
+                          :weak-learning-class "-W"}))))
 
 (defmethod make-classifier-options [:decision-tree :m5p]
   ([kind algorithm m]
-     (->>
-      (check-options m {:unsmoothed-predictions "-U"
-                        :regression "-R"
-                        :unpruned "-N"})
-      (check-option-values m {:minimum-instances "-M"}))))
+   (->>
+    (check-options m {:unsmoothed-predictions "-U"
+                      :regression "-R"
+                      :unpruned "-N"})
+    (check-option-values m {:minimum-instances "-M"}))))
+
+(defmethod make-classifier-options [:meta :raced-incremental-logit-boost]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:use-resampling-for-boosting "-Q"
+                      :debug-mode "-D"})
+    (check-option-values m {:committee-pruning-to-perform "-P"
+                            :minimum-number-of-chunks "-C"
+                            :name-of-base-classifier "-W"
+                            :random-number-seed "-S"
+                            :size-of-validation-set "-V"
+                            :maximum-size-of-chunks "-M"}))))
+
+(defmethod make-classifier-options [:meta :bagging]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:bag-error "-O"
+                      :debug-mode "-D"})
+    (check-option-values m {:size-of-bag "-P"
+                            :parallelism "-num-slots"
+                            :num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :random-subspace]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:size-of-subspace "-P"
+                            :num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
 
 (defmethod make-classifier-options [:rule :m5rules]
   ([kind algorithm m]
@@ -283,41 +322,39 @@
                         :unpruned "-N"})
       (check-option-values m {:minimum-instances "-M"}))))
 
-
 (defmethod make-classifier-options [:meta :attributeselectedclassifier]
   ([kind algorithm m]
      (->> (check-options m {:debug "-D"})
           (check-option-values m
                                {:attribute-evaluator "-E"
                                 :search-method "-S"
-                                :base-classifier "-W"}))))
+                                :name-of-base-classifier "-W"}))))
 
-(defmethod make-classifier-options [:meta :bagging]
+(defmethod make-classifier-options [:meta :stacking]
   ([kind algorithm m]
-     (->>
-      (check-options m {:bag-error "-O"
-                        :debug "-D"
-                        })
-      (check-option-values m {:bag-size "-P"
-                              :random-seed "-S"
-                              :iterations "-I"
-                              :base-classifier "-W"}))))
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:cross-validation-folds "-X"
+                            :meta-classifier "-M"
+                            :random-seed "-S"
+                            :classifiers "-B"}))))
 
-(defmethod make-classifier-options [:meta :random-subspace]
+(defmethod make-classifier-options [:regression :partial-least-squares]
   ([kind algorithm m]
-     (->>
-      (check-options m {:debug "-D"})
-      (check-option-values m {:size "-P"
-                              :random-seed "-S"
-                              :iterations "-I"
-                              :base-classifier "-W"}))))
+   (->> (check-options m {:debug "-D"
+                          :update-class-attribute "-U"
+                          :replace-missing-values "-M"})
+        (check-option-values m
+                             {:algorithm "-A"
+                              :type-of-preprocessing "-P"}))))
+
 
 ;; Building classifiers
 
 
 (defn make-classifier-with
   #^{:skip-wiki true}
-  [kind algorithm ^Class classifier-class options]
+    [kind algorithm ^Class classifier-class options]
   (capture-out-err
    (let [options-read (if (empty? options) {} (first options))
          ^Classifier classifier (.newInstance classifier-class)
@@ -336,17 +373,17 @@
      - :lazy :ibk
      - :decision-tree :c45
      - :decision-tree :boosted-stump
-     - :decision-tree :boosted-decision-tree
      - :decision-tree :M5P
      - :decision-tree :random-forest
      - :decision-tree :rotation-forest
      - :rule :m5rules
      - :bayes :naive
-     - :neural-network :mutilayer-perceptron
+     - :neural-network :multilayer-perceptron
      - :support-vector-machine :smo
      - :regression :linear
      - :regression :logistic
      - :regression :pace
+     - :regression :pls
      - :meta :attributeselectedclassifier
      - :meta :bagging
      - :meta :random-subspace
@@ -504,54 +541,54 @@
 
 (defmethod make-classifier [:lazy :ibk]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm IBk options)))
+   (make-classifier-with kind algorithm IBk options)))
 
 (defmethod make-classifier [:decision-tree :c45]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm J48 options)))
+   (make-classifier-with kind algorithm J48 options)))
 
 (defmethod make-classifier [:bayes :naive]
   ([kind algorithm & options]
-     (if (or (nil? (:updateable (first options)))
-             (= (:updateable (first options)) false))
-       (make-classifier-with kind algorithm NaiveBayes options)
-       (make-classifier-with kind algorithm NaiveBayesUpdateable options))))
+   (if (or (nil? (:updateable (first options)))
+           (= (:updateable (first options)) false))
+     (make-classifier-with kind algorithm NaiveBayes options)
+     (make-classifier-with kind algorithm NaiveBayesUpdateable options))))
 
 (defmethod make-classifier [:neural-network :multilayer-perceptron]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm MultilayerPerceptron options)))
+   (make-classifier-with kind algorithm MultilayerPerceptron options)))
 
 (defmethod make-classifier [:support-vector-machine :smo]
   ([kind algorithm & options]
-     (let [options-read (if (empty? options)  {} (first options))
-           classifier (new SMO)
-           opts (into-array String (make-classifier-options :support-vector-machine :smo options-read))]
-       (.setOptions classifier opts)
-       (when (not (empty? (get options-read :kernel-function)))
+   (let [options-read (if (empty? options)  {} (first options))
+         classifier (new SMO)
+         opts (into-array String (make-classifier-options :support-vector-machine :smo options-read))]
+     (.setOptions classifier opts)
+     (when (not (empty? (get options-read :kernel-function)))
          ;; We have to setup a different kernel function
-         (let [kernel (get options-read :kernel-function)
-               real-kernel (if (map? kernel)
-                             (make-kernel-function (first (keys kernel))
-                                                   (first (vals kernel)))
-                             kernel)]
-           (.setKernel classifier real-kernel)))
-       classifier)))
+       (let [kernel (get options-read :kernel-function)
+             real-kernel (if (map? kernel)
+                           (make-kernel-function (first (keys kernel))
+                                                 (first (vals kernel)))
+                           kernel)]
+         (.setKernel classifier real-kernel)))
+     classifier)))
 
 (defmethod make-classifier [:support-vector-machine :spegasos]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm SPegasos options)))
+   (make-classifier-with kind algorithm SPegasos options)))
 
 (defmethod make-classifier [:support-vector-machine :libsvm]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm LibSVM options)))
+   (make-classifier-with kind algorithm LibSVM options)))
 
 (defmethod make-classifier [:support-vector-machine :libsvm-grid]
   ([kind algorithm & options]
-     (for [c (range -5 17 2) g (range 3 -17 -2)]
-       (make-classifier-with
-        :support-vector-machine :libsvm
-        LibSVM (concat options [:param-C (Math/pow 2.0 c)
-                                :kernel-gamma (Math/pow 2.0 g)])))))
+   (for [c (range -5 17 2) g (range 3 -17 -2)]
+     (make-classifier-with
+      :support-vector-machine :libsvm
+      LibSVM (concat options [:param-C (Math/pow 2.0 c)
+                              :kernel-gamma (Math/pow 2.0 g)])))))
 
 (defmethod make-classifier [:support-vector-machine :smo-regression]
   ([kind algorithm & options]
@@ -559,35 +596,55 @@
 
 (defmethod make-classifier [:regression :linear]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm LinearRegression options)))
+   (make-classifier-with kind algorithm LinearRegression options)))
 
 (defmethod make-classifier [:regression :logistic]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm Logistic options)))
+   (make-classifier-with kind algorithm Logistic options)))
 
 (defmethod make-classifier [:regression :pace]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm PaceRegression options)))
+   (make-classifier-with kind algorithm PaceRegression options)))
 
 (defmethod make-classifier [:regression :boosted-regression]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm AdditiveRegression options)))
+   (make-classifier-with kind algorithm AdditiveRegression options)))
 
 (defmethod make-classifier [:decision-tree :boosted-stump]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm LogitBoost options)))
+   (make-classifier-with kind algorithm LogitBoost options)))
 
 (defmethod make-classifier [:decision-tree :random-forest]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm RandomForest options)))
+   (make-classifier-with kind algorithm RandomForest options)))
 
 (defmethod make-classifier [:decision-tree :rotation-forest]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm RotationForest options)))
+   (make-classifier-with kind algorithm RotationForest options)))
 
 (defmethod make-classifier [:decision-tree :m5p]
   ([kind algorithm & options]
-     (make-classifier-with kind algorithm M5P options)))
+   (make-classifier-with kind algorithm M5P options)))
+
+(defmethod make-classifier [:meta :raced-incremental-logit-boost]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm RacedIncrementalLogitBoost options)))
+
+(defmethod make-classifier [:meta :bagging]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm Bagging options)))
+
+(defmethod make-classifier [:meta :random-subspace]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm RandomSubSpace options)))
+
+(defmethod make-classifier [:meta :stacking]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm Stacking options)))
+
+(defmethod make-classifier [:regression :partial-least-squares]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm PLSClassifier options)))
 
 (defmethod make-classifier [:rule :m5rules]
   ([kind algorithm & options]
@@ -610,13 +667,13 @@
 (defn classifier-train
   "Trains a classifier with the given dataset as the training data."
   ([^Classifier classifier dataset]
-     (do (.buildClassifier classifier dataset)
-         classifier)))
+   (do (.buildClassifier classifier dataset)
+       classifier)))
 
 (defn classifier-copy
   "Performs a deep copy of the classifier"
   [^Classifier classifier]
-  (Classifier/makeCopy classifier))
+  (AbstractClassifier/makeCopy classifier))
 
 (defn classifier-copy-and-train
   "Performs a deep copy of the classifier, trains the copy, and returns it."
@@ -627,47 +684,47 @@
   "If the classifier is updateable it updates the classifier with the given instance or set of instances."
   ([^Classifier classifier instance-s]
      ;; Arg... weka doesn't provide a formal interface for updateClassifer- How do I type hint this?
-     (if (is-dataset? instance-s)
-       (do (doseq [i (dataset-seq instance-s)]
-             (.updateClassifier classifier ^Instance i))
-           classifier)
-       (do (.updateClassifier classifier ^Instance instance-s)
-           classifier))))
+   (if (is-dataset? instance-s)
+     (do (doseq [i (dataset-seq instance-s)]
+           (.updateClassifier classifier ^Instance i))
+         classifier)
+     (do (.updateClassifier classifier ^Instance instance-s)
+         classifier))))
 
 ;; Evaluating classifiers
 
 (defn- collect-evaluation-results
   "Collects all the statistics from the evaluation of a classifier."
   ([class-labels ^Evaluation evaluation]
-     {:confusion-matrix (.toMatrixString evaluation)
-      :summary (.toSummaryString evaluation)
-      :detailed (.toClassDetailsString evaluation)
-      :correct (try-metric #(.correct evaluation))
-      :incorrect (try-metric #(.incorrect evaluation))
-      :unclassified (try-metric #(.unclassified evaluation))
-      :percentage-correct (try-metric #(.pctCorrect evaluation))
-      :percentage-incorrect (try-metric #(.pctIncorrect evaluation))
-      :percentage-unclassified (try-metric #(.pctUnclassified evaluation))
-      :error-rate (try-metric #(.errorRate evaluation))
-      :mean-absolute-error (try-metric #(.meanAbsoluteError evaluation))
-      :relative-absolute-error (try-metric #(.relativeAbsoluteError evaluation))
-      :root-mean-squared-error (try-metric #(.rootMeanSquaredError evaluation))
-      :root-relative-squared-error (try-metric #(.rootRelativeSquaredError evaluation))
-      :correlation-coefficient (try-metric #(.correlationCoefficient evaluation))
-      :average-cost (try-metric #(.avgCost evaluation))
-      :kappa (try-metric #(.kappa evaluation))
-      :kb-information (try-metric #(.KBInformation evaluation))
-      :kb-mean-information (try-metric #(.KBMeanInformation evaluation))
-      :kb-relative-information (try-metric #(.KBRelativeInformation evaluation))
-      :sf-entropy-gain (try-metric #(.SFEntropyGain evaluation))
-      :sf-mean-entropy-gain (try-metric #(.SFMeanEntropyGain evaluation))
-      :roc-area (try-multiple-values-metric class-labels (fn [i] (try-metric #(.areaUnderROC evaluation i))))
-      :false-positive-rate (try-multiple-values-metric class-labels (fn [i] (try-metric #(.falsePositiveRate evaluation i))))
-      :false-negative-rate (try-multiple-values-metric class-labels (fn [i] (try-metric #(.falseNegativeRate evaluation i))))
-      :f-measure (try-multiple-values-metric class-labels (fn [i] (try-metric #(.fMeasure evaluation i))))
-      :precision (try-multiple-values-metric class-labels (fn [i] (try-metric #(.precision evaluation i))))
-      :recall (try-multiple-values-metric class-labels (fn [i] (try-metric #(.recall evaluation i))))
-      :evaluation-object evaluation}))
+   {:confusion-matrix (try (.toMatrixString evaluation) (catch Exception e nil))
+    :summary (.toSummaryString evaluation)
+    :detailed (.toClassDetailsString evaluation)    
+    :correct (try-metric #(.correct evaluation))
+    :incorrect (try-metric #(.incorrect evaluation))
+    :unclassified (try-metric #(.unclassified evaluation))
+    :percentage-correct (try-metric #(.pctCorrect evaluation))
+    :percentage-incorrect (try-metric #(.pctIncorrect evaluation))
+    :percentage-unclassified (try-metric #(.pctUnclassified evaluation))
+    :error-rate (try-metric #(.errorRate evaluation))
+    :mean-absolute-error (try-metric #(.meanAbsoluteError evaluation))
+    :relative-absolute-error (try-metric #(.relativeAbsoluteError evaluation))
+    :root-mean-squared-error (try-metric #(.rootMeanSquaredError evaluation))
+    :root-relative-squared-error (try-metric #(.rootRelativeSquaredError evaluation))
+    :correlation-coefficient (try-metric #(.correlationCoefficient evaluation))
+    :average-cost (try-metric #(.avgCost evaluation))
+    :kappa (try-metric #(.kappa evaluation))
+    :kb-information (try-metric #(.KBInformation evaluation))
+    :kb-mean-information (try-metric #(.KBMeanInformation evaluation))
+    :kb-relative-information (try-metric #(.KBRelativeInformation evaluation))
+    :sf-entropy-gain (try-metric #(.SFEntropyGain evaluation))
+    :sf-mean-entropy-gain (try-metric #(.SFMeanEntropyGain evaluation))
+    :roc-area (try-multiple-values-metric class-labels (fn [i] (try-metric #(.areaUnderROC evaluation i))))
+    :false-positive-rate (try-multiple-values-metric class-labels (fn [i] (try-metric #(.falsePositiveRate evaluation i))))
+    :false-negative-rate (try-multiple-values-metric class-labels (fn [i] (try-metric #(.falseNegativeRate evaluation i))))
+    :f-measure (try-multiple-values-metric class-labels (fn [i] (try-metric #(.fMeasure evaluation i))))
+    :precision (try-multiple-values-metric class-labels (fn [i] (try-metric #(.precision evaluation i))))
+    :recall (try-multiple-values-metric class-labels (fn [i] (try-metric #(.recall evaluation i))))
+    :evaluation-object evaluation}))
 
 (defmulti classifier-evaluate
   "Evaluates a trained classifier using the provided dataset or cross-validation.
@@ -694,6 +751,10 @@
     where for training and the number of folds.
 
       (classifier-evaluate *classifier* :cross-validation *training* 10)
+    
+    An optional seed can be provided for generation of the cross validation folds.
+
+      (classifier-evaluate *classifier* :cross-validation *training* 10 {:random-seed 29})
 
     The metrics available in the evaluation are listed below:
 
@@ -736,28 +797,31 @@
 
 (defmethod classifier-evaluate :dataset
   ([^Classifier classifier mode & [training-data test-data]]
-     (capture-out-err
-      (letfn [(eval-fn [c]
-                (let [evaluation (new Evaluation training-data)
-                      class-labels (dataset-class-labels training-data)]
-                  (.evaluateModel evaluation c test-data (into-array []))
-                  (collect-evaluation-results class-labels evaluation)))]
-        (if (seq? classifier)
-          (last (sort-by :correct (map eval-fn classifier)))
-          (eval-fn classifier))))))
+   (capture-out-err
+    (letfn [(eval-fn [c]
+              (let [evaluation (new Evaluation training-data)
+                    class-labels (dataset-class-labels training-data)]
+                (.evaluateModel evaluation c test-data (into-array []))
+                (collect-evaluation-results class-labels evaluation)))]
+      (if (seq? classifier)
+        (last (sort-by :correct (map eval-fn classifier)))
+        (eval-fn classifier))))))
 
 (defmethod classifier-evaluate :cross-validation
-  ([classifier mode & [training-data folds]]
-     (capture-out-err
-      (letfn [(eval-fn [c]
-                (let [evaluation (new Evaluation training-data)
-                      class-labels (dataset-class-labels training-data)]
-                  (.crossValidateModel evaluation c training-data folds
-                                       (new Random (.getTime (new Date))) (into-array []))
-                  (collect-evaluation-results class-labels evaluation)))]
-        (if (seq? classifier)
-          (last (sort-by :correct (map eval-fn classifier)))
-          (eval-fn classifier))))))
+  ([classifier mode & [training-data folds
+                       {:keys [random-seed]
+                        :or {random-seed (.getTime (new Date))}}
+                       ]]
+   (capture-out-err
+    (letfn [(eval-fn [c]
+              (let [evaluation (new Evaluation training-data)
+                    class-labels (dataset-class-labels training-data)]
+                (.crossValidateModel evaluation c training-data folds
+                                     (new Random random-seed) (into-array []))
+                (collect-evaluation-results class-labels evaluation)))]
+      (if (seq? classifier)
+        (last (sort-by :correct (map eval-fn classifier)))
+        (eval-fn classifier))))))
 
 ;; Classifying instances
 
@@ -765,20 +829,26 @@
   "Classifies an instance using the provided classifier. Returns the
    class as a keyword."
   ([^Classifier classifier ^Instance instance]
-     (let [pred (.classifyInstance classifier instance)]
-       (keyword (.value (.classAttribute instance) pred)))))
+   (let [pred (.classifyInstance classifier instance)]
+     (keyword (.value (.classAttribute instance) pred)))))
 
 (defn classifier-predict-numeric
   "Predicts the class attribute of an instance using the provided
    classifier. Returns the value as a floating-point value (e.g., for
    regression)."
   ([^Classifier classifier ^Instance instance]
-     (.classifyInstance classifier instance)))
+   (.classifyInstance classifier instance)))
 
 (defn classifier-label
   "Classifies and assign a label to a dataset instance.
    The function returns the newly classified instance. This call is
    destructive, the instance passed as an argument is modified."
   ([^Classifier classifier ^Instance instance]
-     (let [cls (.classifyInstance classifier instance)]
-       (doto instance (.setClassValue cls)))))
+   (let [cls (.classifyInstance classifier instance)]
+     (doto instance (.setClassValue cls)))))
+
+(defn classifier-predict-probability
+  "Classifies an instance using the provided classifier. Returns the
+   probability distribution across classes for the instance"
+  ([^Classifier classifier ^Instance instance]
+   (vec (.distributionForInstance classifier instance))))
