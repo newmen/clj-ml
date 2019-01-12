@@ -4,10 +4,12 @@ lib
 classes
 .lein*
 target/*
+.nrepl-port
 
 ## TEST
 test.arff
 test.csv
+testsparse.arff
 
 ## EMACS
 *~

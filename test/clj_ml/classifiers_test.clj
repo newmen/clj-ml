@@ -7,8 +7,8 @@
   (fact
    (let [options (make-classifier-options
                   :meta :random-subspace
-                  {:debug true :size 10 :random-seed 1
-                   :iterations 10 :base-classifier "weka.classifiers.trees.REPTree"})]
+                  {:debug-mode true :size-of-subspace 10 :random-seed 1
+                   :num-iterations 10 :name-of-base-classifier "weka.classifiers.trees.REPTree"})]
      options => (just ["-D" "-P" "10" "-S" "1" "-I" "10" "-W"
                        "weka.classifiers.trees.REPTree"]
                       :in-any-order))))
@@ -29,8 +29,8 @@
   (fact
    (let [options (make-classifier-options
                   :meta :bagging
-                  {:bag-error true :debug true :bag-size 100 :random-seed 1
-                   :iterations 10 :base-classifier "weka.classifiers.trees.REPTree"})]
+                  {:bag-error true :debug-mode true :size-of-bag 100 :random-seed 1
+                   :num-iterations 10 :name-of-base-classifier "weka.classifiers.trees.REPTree"})]
      options => (just ["-O" "-D" "-P" "100" "-S" "1" "-I" "10" "-W"
                        "weka.classifiers.trees.REPTree"]
                       :in-any-order))))
@@ -53,7 +53,7 @@
                   :meta :attributeselectedclassifier
                   {:debug true :attribute-evaluator "weka.attributeSelection.CfsSubsetEval -L"
                    :search-method "weka.attributeSelection.BestFirst -D 1"
-                   :base-classifier "weka.classifiers.trees.J48"})]
+                   :name-of-base-classifier "weka.classifiers.trees.J48"})]
      options => (just ["-D" "-E" "weka.attributeSelection.CfsSubsetEval -L"
                        "-S" "weka.attributeSelection.BestFirst -D 1"
                        "-W" "weka.classifiers.trees.J48"] :in-any-order))))
@@ -169,8 +169,8 @@
         _  (classifier-train c ds)
         res (classifier-evaluate c :cross-validation ds 2)
         randres (classifier-evaluate c :cross-validation ds 2 {:random-seed 29}) ]
-    (is (= 28 (count (keys res))))
-    (is (= 28 (count (keys randres))))))
+    (is (= 29 (count (keys res))))
+    (is (= 29 (count (keys randres))))))
 
 (deftest classifier-evaluate-cross-validation-grid
   (let [c (make-classifier :support-vector-machine :libsvm-grid)
