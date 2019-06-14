@@ -4,7 +4,7 @@
 ;;
 
 (ns #^{:author "Antonio Garrote <antoniogarrote@gmail.com>"}
-      clj-ml.classifiers
+  clj-ml.classifiers
   "This namespace contains several functions for building classifiers using different
    classification algorithms: Bayes networks, multilayer perceptron, decision tree or
    support vector machines are available. Some of these classifiers have incremental
@@ -65,15 +65,20 @@
            (weka.core Instance Instances)
            (weka.classifiers.lazy IBk)
            (weka.classifiers.trees J48 RandomForest M5P)
-           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost Bagging RandomSubSpace Stacking)
+           (weka.classifiers.rules M5Rules)
+           (weka.classifiers.meta LogitBoost AdditiveRegression RotationForest RacedIncrementalLogitBoost
+                                  AttributeSelectedClassifier Bagging RandomSubSpace Stacking RandomCommittee
+                                  AdaBoostM1)
            (weka.classifiers.bayes NaiveBayes NaiveBayesUpdateable)
-           (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic PaceRegression SPegasos LibSVM PLSClassifier)
+           (weka.classifiers.functions MultilayerPerceptron SMO LinearRegression Logistic
+                                       PaceRegression SPegasos LibSVM SMOreg PLSClassifier)
            (weka.classifiers AbstractClassifier Classifier Evaluation)))
+
 
 ;; Setting up classifier options
 
 (defmulti #^{:skip-wiki true}
-            make-classifier-options
+  make-classifier-options
   "Creates the right parameters for a classifier. Returns the parameters as a Clojure vector."
   (fn [kind algorithm map] [kind algorithm]))
 
@@ -185,6 +190,15 @@
                               :class-weight "-W"
                               :random-seed "-seed"}))))
 
+(defmethod make-classifier-options [:support-vector-machine :smo-regression]
+  ([kind algorithm m]
+   (->> (check-options m {})
+        (check-option-values m
+                             {:complexity-constant "-C"
+                              :normalize "-N"
+                              :optimizer-class "-I"
+                              :kernel-type "-K"}))))
+
 (defmethod make-classifier-options [:regression :linear]
   ([kind algorithm m]
    (->> (check-options m {:debug "-D"
@@ -234,6 +248,7 @@
     (check-options m {:debug "-D"
                       :break-ties "-B"
                       :print-classifiers "-print"
+                      :attribute-importance "-attribute-importance"
                       })
     (check-option-values m
                          {:num-trees-in-forest "-I"
@@ -241,7 +256,7 @@
                           :random-seed "-S"
                           :depth "-depth"
                           :size-of-bag "-P"
-                          :parallelism "-num-slots" 
+                          :parallelism "-num-slots"
                           :min-num-instance-per-leaf "-M"
                           :min-variance-for-split "-V"
                           }))))
@@ -283,7 +298,8 @@
 (defmethod make-classifier-options [:meta :bagging]
   ([kind algorithm m]
    (->>
-    (check-options m {:debug-mode "-D"})
+    (check-options m {:bag-error "-O"
+                      :debug-mode "-D"})
     (check-option-values m {:size-of-bag "-P"
                             :parallelism "-num-slots"
                             :num-iterations "-I"
@@ -298,6 +314,31 @@
                             :num-iterations "-I"
                             :random-seed "-S"
                             :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :random-committee]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:parallelism "-num-slots"
+                            :num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :adaboost-m1]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:debug-mode "-D"})
+    (check-option-values m {:num-iterations "-I"
+                            :random-seed "-S"
+                            :name-of-base-classifier "-W"}))))
+
+(defmethod make-classifier-options [:meta :attributeselectedclassifier]
+  ([kind algorithm m]
+   (->> (check-options m {:debug "-D"})
+        (check-option-values m
+                             {:attribute-evaluator "-E"
+                              :search-method "-S"
+                              :name-of-base-classifier "-W"}))))
 
 (defmethod make-classifier-options [:meta :stacking]
   ([kind algorithm m]
@@ -317,12 +358,20 @@
                              {:algorithm "-A"
                               :type-of-preprocessing "-P"}))))
 
+(defmethod make-classifier-options [:rule :m5rules]
+  ([kind algorithm m]
+   (->>
+    (check-options m {:unsmoothed-predictions "-U"
+                      :regression "-R"
+                      :unpruned "-N"})
+    (check-option-values m {:minimum-instances "-M"}))))
+
 ;; Building classifiers
 
 
 (defn make-classifier-with
   #^{:skip-wiki true}
-    [kind algorithm ^Class classifier-class options]
+  [kind algorithm ^Class classifier-class options]
   (capture-out-err
    (let [options-read (if (empty? options) {} (first options))
          ^Classifier classifier (.newInstance classifier-class)
@@ -341,16 +390,30 @@
      - :lazy :ibk
      - :decision-tree :c45
      - :decision-tree :boosted-stump
-     - :decision-tree :M5P
+     - :decision-tree :m5p
      - :decision-tree :random-forest
      - :decision-tree :rotation-forest
+     - :rule :m5rules
      - :bayes :naive
      - :neural-network :multilayer-perceptron
      - :support-vector-machine :smo
+     - :support-vector-machine :smo-regression
+     - :support-vector-machine :spegasos
+     - :support-vector-machine :libsvm
+     - :support-vector-machine :libsvm-grid
      - :regression :linear
      - :regression :logistic
      - :regression :pace
      - :regression :pls
+     - :regression :boosted
+     - :regression :partial-least-squares
+     - :meta :attributeselectedclassifier
+     - :meta :bagging
+     - :meta :random-subspace
+     - :meta :random-committee
+     - :meta :stacking
+     - :meta :adaboost-m1
+     - :meta :raced-incremental-logit-boost
 
    Optionally, a map of options can also be passed as an argument with
    a set of classifier specific options.
@@ -500,7 +563,7 @@
             Set the maximum number of iterations (default -1, until convergence).
         - :ridge
             Set the ridge in the log-likelihood.
-"
+  "
   (fn [kind algorithm & options] [kind algorithm]))
 
 (defmethod make-classifier [:lazy :ibk]
@@ -529,7 +592,7 @@
          opts (into-array String (make-classifier-options :support-vector-machine :smo options-read))]
      (.setOptions classifier opts)
      (when (not (empty? (get options-read :kernel-function)))
-         ;; We have to setup a different kernel function
+       ;; We have to setup a different kernel function
        (let [kernel (get options-read :kernel-function)
              real-kernel (if (map? kernel)
                            (make-kernel-function (first (keys kernel))
@@ -553,6 +616,10 @@
       :support-vector-machine :libsvm
       LibSVM (concat options [:param-C (Math/pow 2.0 c)
                               :kernel-gamma (Math/pow 2.0 g)])))))
+
+(defmethod make-classifier [:support-vector-machine :smo-regression]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm SMOreg options)))
 
 (defmethod make-classifier [:regression :linear]
   ([kind algorithm & options]
@@ -594,6 +661,10 @@
   ([kind algorithm & options]
    (make-classifier-with kind algorithm Bagging options)))
 
+(defmethod make-classifier [:meta :random-committee]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm RandomCommittee options)))
+
 (defmethod make-classifier [:meta :random-subspace]
   ([kind algorithm & options]
    (make-classifier-with kind algorithm RandomSubSpace options)))
@@ -605,6 +676,18 @@
 (defmethod make-classifier [:regression :partial-least-squares]
   ([kind algorithm & options]
    (make-classifier-with kind algorithm PLSClassifier options)))
+
+(defmethod make-classifier [:meta :adaboost-m1]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm AdaBoostM1 options)))
+
+(defmethod make-classifier [:meta :attributeselectedclassifier]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm AttributeSelectedClassifier options)))
+
+(defmethod make-classifier [:rule :m5rules]
+  ([kind algorithm & options]
+   (make-classifier-with kind algorithm M5Rules options)))
 
 ;; Training classifiers
 
@@ -627,7 +710,7 @@
 (defn classifier-update
   "If the classifier is updateable it updates the classifier with the given instance or set of instances."
   ([^Classifier classifier instance-s]
-     ;; Arg... weka doesn't provide a formal interface for updateClassifer- How do I type hint this?
+   ;; Arg... weka doesn't provide a formal interface for updateClassifer- How do I type hint this?
    (if (is-dataset? instance-s)
      (do (doseq [i (dataset-seq instance-s)]
            (.updateClassifier classifier ^Instance i))
@@ -642,6 +725,7 @@
   ([class-labels ^Evaluation evaluation]
    {:confusion-matrix (try (.toMatrixString evaluation) (catch Exception e nil))
     :summary (.toSummaryString evaluation)
+    :detailed (try (.toClassDetailsString evaluation) (catch Exception e nil))
     :correct (try-metric #(.correct evaluation))
     :incorrect (try-metric #(.incorrect evaluation))
     :unclassified (try-metric #(.unclassified evaluation))
@@ -694,7 +778,7 @@
     where for training and the number of folds.
 
       (classifier-evaluate *classifier* :cross-validation *training* 10)
-    
+
     An optional seed can be provided for generation of the cross validation folds.
 
       (classifier-evaluate *classifier* :cross-validation *training* 10 {:random-seed 29})
@@ -735,7 +819,7 @@
     - :recall
     - :evaluation-object
         The underlying Weka's Java object containing the evaluation
-"
+  "
   (fn [classifier mode & evaluation-data] mode))
 
 (defmethod classifier-evaluate :dataset

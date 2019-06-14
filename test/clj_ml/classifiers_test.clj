@@ -2,6 +2,93 @@
   (:use [clj-ml classifiers data] :reload-all)
   (:use clojure.test midje.sweet))
 
+
+(deftest make-classifiers-options-random-subspace
+  (fact
+   (let [options (make-classifier-options
+                  :meta :random-subspace
+                  {:debug-mode true :size-of-subspace 10 :random-seed 1
+                   :num-iterations 10 :name-of-base-classifier "weka.classifiers.trees.REPTree"})]
+     options => (just ["-D" "-P" "10" "-S" "1" "-I" "10" "-W"
+                       "weka.classifiers.trees.REPTree"]
+                      :in-any-order))))
+
+(deftest make-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace)]
+    (is (= (class c)
+           weka.classifiers.meta.RandomSubSpace))))
+
+(deftest train-classifier-random-subspace
+  (let [c (make-classifier :meta :random-subspace)
+        ds (make-dataset "test" [:a :b {:c [:m :n]}] (take 10 (cycle [[1 2 :m] [4 5 :m]])))]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
+(deftest make-classifiers-options-bagging
+  (fact
+   (let [options (make-classifier-options
+                  :meta :bagging
+                  {:bag-error true :debug-mode true :size-of-bag 100 :random-seed 1
+                   :num-iterations 10 :name-of-base-classifier "weka.classifiers.trees.REPTree"})]
+     options => (just ["-O" "-D" "-P" "100" "-S" "1" "-I" "10" "-W"
+                       "weka.classifiers.trees.REPTree"]
+                      :in-any-order))))
+
+(deftest make-classifier-bagging
+  (let [c (make-classifier :meta :bagging)]
+    (is (= (class c)
+           weka.classifiers.meta.Bagging))))
+
+(deftest train-classifier-bagging
+  (let [c (make-classifier :meta :bagging)
+        ds (make-dataset "test" [:a :b {:c [:m :n]}] (take 10 (cycle [[1 2 :m] [4 5 :m]])))]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
+(deftest make-classifiers-options-attributeselectedclassifier
+  (fact
+   (let [options (make-classifier-options
+                  :meta :attributeselectedclassifier
+                  {:debug true :attribute-evaluator "weka.attributeSelection.CfsSubsetEval -L"
+                   :search-method "weka.attributeSelection.BestFirst -D 1"
+                   :name-of-base-classifier "weka.classifiers.trees.J48"})]
+     options => (just ["-D" "-E" "weka.attributeSelection.CfsSubsetEval -L"
+                       "-S" "weka.attributeSelection.BestFirst -D 1"
+                       "-W" "weka.classifiers.trees.J48"] :in-any-order))))
+
+(deftest make-classifier-attributeselectedclassifier
+  (let [c (make-classifier :meta :attributeselectedclassifier)]
+    (is (= (class c)
+           weka.classifiers.meta.AttributeSelectedClassifier))))
+
+(deftest train-classifier-attributeselectedclassifier
+  (let [c (make-classifier :meta :attributeselectedclassifier)
+        ds (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
+(deftest make-classifiers-options-m5rules
+  (fact
+   (let [options (make-classifier-options
+                  :rule :m5rules
+                  {:unsmoothed-predictions true :regression true :unpruned true :minimum-instances 3})]
+     options => (just ["-U" "-R" "-N" "-M" "3"] :in-any-order))))
+
+(deftest make-classifier-m5rules
+  (let [c (make-classifier :rule :m5rules)]
+    (is (= (class c)
+           weka.classifiers.rules.M5Rules))))
+
+(deftest train-classifier-m5rules
+  (let [c (make-classifier :rule :m5rules)
+        ds (make-dataset "test" [:a :b :c] [[1 2 1] [4 5 1]])]
+    (dataset-set-class ds 2)
+    (classifier-train c ds)
+    (is true)))
+
 (deftest make-classifiers-options-ibk
   (fact
    (let [options (make-classifier-options
@@ -68,7 +155,7 @@
         _   (dataset-set-class tds 2)
         _   (classifier-train c ds)
         res (classifier-evaluate c :dataset ds tds)]
-    (is (= 28 (count (keys res))))))
+    (is (= 29 (count (keys res))))))
 
 (deftest make-classifier-svm-smo-polykernel
   (let [svm (make-classifier :support-vector-machine :smo {:kernel-function {:polynomic {:exponent 2.0}}})]
@@ -82,15 +169,15 @@
         _  (classifier-train c ds)
         res (classifier-evaluate c :cross-validation ds 2)
         randres (classifier-evaluate c :cross-validation ds 2 {:random-seed 29}) ]
-    (is (= 28 (count (keys res))))
-    (is (= 28 (count (keys randres))))))
+    (is (= 29 (count (keys res))))
+    (is (= 29 (count (keys randres))))))
 
 (deftest classifier-evaluate-cross-validation-grid
   (let [c (make-classifier :support-vector-machine :libsvm-grid)
         ds (make-dataset "test" [:a :b {:c [:m :n]}] [[1 2 :m] [4 5 :m]])
         _  (dataset-set-class ds 2)
         res (classifier-evaluate c :cross-validation ds 2)]
-    (is (= 28 (count (keys res))))))
+    (is (= 29 (count (keys res))))))
 
 (deftest test-classifier-classify
   (let [c (make-classifier :decision-tree :c45)

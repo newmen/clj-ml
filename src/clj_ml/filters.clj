@@ -59,31 +59,31 @@
     `(do
        (defn ~filter-name
          ([ds#]
-            (make-apply-filter ~filter-keyword {} ds#))
+          (make-apply-filter ~filter-keyword {} ds#))
          ([ds# attributes#]
-            (make-apply-filter ~filter-keyword attributes# ds#))))))
+          (make-apply-filter ~filter-keyword attributes# ds#))))))
 
 
 (defmethod make-filter-options :supervised-discretize
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:invert "-V"
-                            :binary "-D"
-                            :better-encoding "-E"
-                            :kononenko "-K"}))))
+   (->> (extract-attributes m)
+        (check-options m {:invert "-V"
+                          :binary "-D"
+                          :better-encoding "-E"
+                          :kononenko "-K"}))))
 
 (deffilter supervised-discretize)
 
 (defmethod make-filter-options :unsupervised-discretize
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:unset-class "-unset-class-temporarily"
-                            :binary "-D"
-                            :better-encoding "-E"
-                            :equal-frequency "-F"
-                            :optimize "-O"})
-          (check-option-values m {:number-bins "-B"
-                                  :weight-bins "-M"}))))
+   (->> (extract-attributes m)
+        (check-options m {:unset-class "-unset-class-temporarily"
+                          :binary "-D"
+                          :better-encoding "-E"
+                          :equal-frequency "-F"
+                          :optimize "-O"})
+        (check-option-values m {:number-bins "-B"
+                                :weight-bins "-M"}))))
 
 
 (deffilter unsupervised-discretize)
@@ -91,53 +91,53 @@
 
 (defmethod make-filter-options :pki-unsupervised-discretize
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:unset-class "-unset-class-temporarily"
-                            :binary "-D"}))))
+   (->> (extract-attributes m)
+        (check-options m {:unset-class "-unset-class-temporarily"
+                          :binary "-D"}))))
 
 
 (deffilter pki-unsupervised-discretize)
 
 (defmethod make-filter-options :supervised-nominal-to-binary
   ([kind m]
-     (check-options m {:also-binary "-N" :for-each-nominal "-A"})))
+   (check-options m {:also-binary "-N" :for-each-nominal "-A"})))
 
 
 (deffilter supervised-nominal-to-binary)
 
 (defmethod make-filter-options :unsupervised-nominal-to-binary
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:invert "-V"
-                            :also-binary "-N"
-                            :for-each-nominal "-A"}))))
+   (->> (extract-attributes m)
+        (check-options m {:invert "-V"
+                          :also-binary "-N"
+                          :for-each-nominal "-A"}))))
 
 (deffilter unsupervised-nominal-to-binary)
 
 (defmethod make-filter-options :numeric-to-nominal
   ([kind m]
-     (->> (extract-attributes m) (check-options m {:invert "-V"}))))
+   (->> (extract-attributes m) (check-options m {:invert "-V"}))))
 
 (deffilter numeric-to-nominal)
 
 (defmethod make-filter-options :string-to-word-vector
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:counts "-C"
-                            :invert "-V"
-                            :transform-tf "-T"
-                            :transform-idf "-I"
-                            :lowercase "-L"
-                            :use-stoplist "-S"
-                            :constrain-globally "-O"})
-          (check-option-values m {:prefix "-P"
-                                  :words-to-keep "-W"
-                                  :prune-rate "-prune-rate"
-                                  :normalize "-N"
-                                  :stemmer "-stemmer"
-                                  :min-freq "-M"
-                                  :stopwords-file "-stopwords"
-                                  :tokenizer "-tokenizer"}))))
+   (->> (extract-attributes m)
+        (check-options m {:counts "-C"
+                          :invert "-V"
+                          :transform-tf "-T"
+                          :transform-idf "-I"
+                          :lowercase "-L"
+                          :use-stoplist "-S"
+                          :constrain-globally "-O"})
+        (check-option-values m {:prefix "-P"
+                                :words-to-keep "-W"
+                                :prune-rate "-prune-rate"
+                                :normalize "-N"
+                                :stemmer "-stemmer"
+                                :min-freq "-M"
+                                :stopwords-file "-stopwords"
+                                :tokenizer "-tokenizer"}))))
 
 (deffilter string-to-word-vector)
 
@@ -156,16 +156,16 @@
 
 (defmethod make-filter-options :add-attribute
   ([kind m]
-     (-> m
-         (update-in-when [:name] name)
-         (update-in-when [:type] attribute-types)
-         (update-in-when [:labels] (partial str/join ","))
-         (update-in-when [:column] #(if (number? %) (inc %) %))
-         (check-option-values {:type "-T"
-                               :labels "-L"
-                               :name "-N"
-                               :column "-C"
-                               :date-format "-F"}))))
+   (-> m
+       (update-in-when [:name] name)
+       (update-in-when [:type] attribute-types)
+       (update-in-when [:labels] (partial str/join ","))
+       (update-in-when [:column] #(if (number? %) (inc %) %))
+       (check-option-values {:type "-T"
+                             :labels "-L"
+                             :name "-N"
+                             :column "-C"
+                             :date-format "-F"}))))
 
 (deffilter add-attribute)
 
@@ -176,72 +176,72 @@
 
 (defmethod make-filter-options :remove-attributes
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:invert "-V"}))))
+   (->> (extract-attributes m)
+        (check-options m {:invert "-V"}))))
 
 (deffilter remove-attributes)
 
 (defmethod make-filter-options :remove-percentage
   ([kind m]
-     (->> (check-option-values m {:percentage "-P"})
-          (check-options m {:invert "-V"}))))
+   (->> (check-option-values m {:percentage "-P"})
+        (check-options m {:invert "-V"}))))
 
 (deffilter remove-percentage)
 
 (defmethod make-filter-options :remove-range
   ([kind m]
-     (->> (check-option-values m {:range "-R"})
-          (check-options m {:invert "-V"}))))
+   (->> (check-option-values m {:range "-R"})
+        (check-options m {:invert "-V"}))))
 
 (deffilter remove-range)
 
 (defmethod make-filter-options :remove-useless-attributes
   ([kind m]
-     (check-option-values m {:max-variance "-M"})))
+   (check-option-values m {:max-variance "-M"})))
 
 (deffilter remove-useless-attributes)
 
 (defmethod make-filter-options :resample-unsupervised
   ([kind m]
-     (->> (check-option-values m {:seed "-S" :size-percent "-Z"})
-          (check-options m {:no-replacement "-no-replacement" :invert "-V"}))))
+   (->> (check-option-values m {:seed "-S" :size-percent "-Z"})
+        (check-options m {:no-replacement "-no-replacement" :invert "-V"}))))
 
 (deffilter resample-unsupervised)
 
 (defmethod make-filter-options :resample-supervised
   ([kind m]
-     (->> (check-option-values m {:seed "-S" :size-percent "-Z" :bias "-B"})
-          (check-options m {:no-replacement "-no-replacement" :invert "-V"}))))
+   (->> (check-option-values m {:seed "-S" :size-percent "-Z" :bias "-B"})
+        (check-options m {:no-replacement "-no-replacement" :invert "-V"}))))
 
 (deffilter resample-supervised)
 
 (defmethod make-filter-options :stratified-remove-folds-supervised
   ([kind m]
-     (->> (check-option-values m {:num-folds "-N" :fold "-F" :seed "-S"})
-          (check-options m { :invert "-V"}))))
+   (->> (check-option-values m {:num-folds "-N" :fold "-F" :seed "-S"})
+        (check-options m { :invert "-V"}))))
 
 (deffilter stratified-remove-folds-supervised)
 
 
 (defmethod make-filter-options :replace-missing-values
   ([kind m]
-     (check-options m {:unset-class-temporarily "-unset-class-temporarily"})))
+   (check-options m {:unset-class-temporarily "-unset-class-temporarily"})))
 
 (deffilter replace-missing-values)
 
 (defmethod make-filter-options :select-append-attributes
   ([kind m]
-     (->> (extract-attributes m)
-          (check-options m {:invert "-V"}))))
+   (->> (extract-attributes m)
+        (check-options m {:invert "-V"}))))
 
 (deffilter select-append-attributes)
 
 (defmethod make-filter-options :project-attributes
   ([kind options]
-     (let [opts (if (nil? (:invert options))
-                  (conj options {:invert true})
-                  (dissoc options :invert))]
-       (make-filter-options :remove-attributes opts))))
+   (let [opts (if (nil? (:invert options))
+                (conj options {:invert true})
+                (dissoc options :invert))]
+     (make-filter-options :remove-attributes opts))))
 
 (deffilter project-attributes)
 
@@ -250,9 +250,9 @@
 
 (defmethod make-filter-options :random-subset
   ([kind m]
-     (->> (check-options m {:debug "-D"})
-          (check-option-values m {:num-attributes "-N"
-                                  :random-seed "-S"}))))
+   (->> (check-options m {:debug "-D"})
+        (check-option-values m {:num-attributes "-N"
+                                :random-seed "-S"}))))
 
 (deffilter random-subset)
 ;; Creation of filters
@@ -671,7 +671,7 @@
    The :dataset-format attribute for the making of the filter will be setup to the
    dataset passed as an argument if no other value is provided."
   [filter-options dataset]
-                                        ;TODO: Consider using Weka's MultiFilter instead.. could be faster for streamable filters.
+  ;;TODO: Consider using Weka's MultiFilter instead.. could be faster for streamable filters.
   (reduce
    (fn [ds [kind options]]
      (make-apply-filter kind options ds))

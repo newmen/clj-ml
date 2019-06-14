@@ -1,11 +1,11 @@
-(defproject cc.artifice/clj-ml "0.8.7"
+(defproject com.ruphware/clj-ml "0.8.9-SNAPSHOT"
   :description "Machine Learning library for Clojure built around Weka and friends"
   :java-source-paths ["src/java"]
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :url "https://github.com/joshuaeckroth/clj-ml"
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [nz.ac.waikato.cms.weka/weka-dev "3.7.11"]
+                 [nz.ac.waikato.cms.weka/weka-dev "3.9.3"]
                  [nz.ac.waikato.cms.weka/chiSquaredAttributeEval "1.0.4" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
                  [nz.ac.waikato.cms.weka/attributeSelectionSearchMethods "1.0.7" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
                  [nz.ac.waikato.cms.weka/classifierBasedAttributeSelection "1.0.4" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]

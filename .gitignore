@@ -4,12 +4,19 @@ lib
 classes
 .lein*
 target/*
+.nrepl-port
+
+## TEST
+test.arff
+test.csv
+testsparse.arff
 
 ## EMACS
 *~
 \#*
 .\#*
 .dir-locals.el
+eproject.cfg
 
 ## VIM
 *.sw?
