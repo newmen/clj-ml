@@ -1,3 +1,5 @@
+[![Clojars Project](https://img.shields.io/clojars/v/com.shark8me/clj-ml.svg)](https://clojars.org/com.shark8me/clj-ml)
+
 # clj-ml
 
 A machine learning library for Clojure built on top of Weka and friends.
@@ -8,17 +10,8 @@ This library (specifically, some dependencies) requires Java 1.7+.
 
 ### Installing from Clojars
 
-    N/A
+    See latest version on badge.
 
-### Installing from Maven
-
-(add Clojars repository)
-
-    <dependency>
-      <groupId>cc.artifice</groupId>
-      <artifactId>clj-ml</artifactId>
-      <version>0.8.5</version>
-    </dependency>
 
 ## Supported algorithms
 
