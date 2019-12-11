@@ -1,3 +1,5 @@
+[![Clojars Project](https://img.shields.io/clojars/v/com.shark8me/clj-ml.svg)](https://clojars.org/com.shark8me/clj-ml)
+
 # clj-ml
 
 A machine learning library for Clojure built on top of Weka and friends.
