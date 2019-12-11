@@ -10,17 +10,8 @@ This library (specifically, some dependencies) requires Java 1.7+.
 
 ### Installing from Clojars
 
-    N/A
+    See latest version on badge.
 
-### Installing from Maven
-
-(add Clojars repository)
-
-    <dependency>
-      <groupId>cc.artifice</groupId>
-      <artifactId>clj-ml</artifactId>
-      <version>0.8.5</version>
-    </dependency>
 
 ## Supported algorithms
 
