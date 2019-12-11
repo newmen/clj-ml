@@ -4,7 +4,7 @@
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :url "https://github.com/joshuaeckroth/clj-ml"
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [nz.ac.waikato.cms.weka/weka-dev "3.9.3"]
                  [nz.ac.waikato.cms.weka/chiSquaredAttributeEval "1.0.4" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
                  [nz.ac.waikato.cms.weka/attributeSelectionSearchMethods "1.0.7" :exclusions [nz.ac.waikato.cms.weka/weka-dev]]
@@ -21,9 +21,10 @@
                  [org.clojure/data.xml "0.0.8"]
                  [org.apache.lucene/lucene-analyzers-common "4.10.1"]
                  [org.apache.lucene/lucene-snowball "3.0.3"]]
-  :profiles {:dev {:plugins [[lein-midje "3.1.3"]]
-                   :dependencies [[midje "1.6.3"]]}}
+  :profiles {:dev {:plugins [[lein-midje "3.2.1"]]
+                   :dependencies [[midje "1.9.8"]]}}
   :codox {:output-dir "website/doc"
           :src-dir-uri "http://github.com/joshuaeckroth/clj-ml/blob/master"
           :src-linenum-anchor-prefix "L"}
-  :javac-options ["-Xlint:deprecation" "-Xlint:unchecked" "-target" "1.7" "-source" "1.7"])
+ ; :javac-options ["-Xlint:deprecation" "-Xlint:unchecked" "-target" "1.7" "-source" "1.7"]
+  )
