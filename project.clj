@@ -21,10 +21,10 @@
                  [org.clojure/data.xml "0.0.8"]
                  [org.apache.lucene/lucene-analyzers-common "4.10.1"]
                  [org.apache.lucene/lucene-snowball "3.0.3"]]
-  :profiles {:dev {:plugins [[lein-midje "3.2.1"]]
+  :profiles {:dev {:plugins [[lein-midje "3.2.1"]
+                             [lein-codox "0.10.7"]]
                    :dependencies [[midje "1.9.8"]]}}
-  :codox {:output-dir "website/doc"
-          :src-dir-uri "http://github.com/joshuaeckroth/clj-ml/blob/master"
+  :codox {:output-dir "codox"
           :src-linenum-anchor-prefix "L"}
  ; :javac-options ["-Xlint:deprecation" "-Xlint:unchecked" "-target" "1.7" "-source" "1.7"]
   )

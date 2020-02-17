@@ -24,4 +24,6 @@ eproject.cfg
 ## OSx
 .DS_Store
 
+##Doc
+/codox
 
