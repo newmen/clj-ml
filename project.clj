@@ -24,7 +24,7 @@
   :profiles {:dev {:plugins [[lein-midje "3.2.1"]
                              [lein-codox "0.10.7"]]
                    :dependencies [[midje "1.9.8"]]}}
-  :codox {:output-dir "codox"
+  :codox {:output-path "codox"
           :src-linenum-anchor-prefix "L"}
  ; :javac-options ["-Xlint:deprecation" "-Xlint:unchecked" "-target" "1.7" "-source" "1.7"]
   )
