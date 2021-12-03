@@ -91,15 +91,17 @@
         (check-option-values m
                              {:num-neighbors "-K"}))))
 
+(def common-j48-checking-options
+  {:unpruned "-U"
+   :reduced-error-pruning "-R"
+   :only-binary-splits "-B"
+   :no-raising "-S"
+   :no-cleanup "-L"
+   :laplace-smoothing "-A"})
+
 (defmethod make-classifier-options [:decision-tree :c45]
   ([kind algorithm m]
-   (->> (check-options m
-                       {:unpruned "-U"
-                        :reduced-error-pruning "-R"
-                        :only-binary-splits "-B"
-                        :no-raising "-S"
-                        :no-cleanup "-L"
-                        :laplace-smoothing "-A"})
+   (->> (check-options m common-j48-checking-options)
         (check-option-values m
                              {:pruning-confidence "-C"
                               :minimum-instances "-M"
@@ -264,7 +266,8 @@
 (defmethod make-classifier-options [:decision-tree :rotation-forest]
   ([kind algorithm m]
    (->>
-    (check-options m {:debug "-D"})
+    (check-options m (merge common-j48-checking-options
+                            {:debug "-D"}))
     (check-option-values m
                          {:num-iterations "-I"
                           :use-number-of-groups "-N"
