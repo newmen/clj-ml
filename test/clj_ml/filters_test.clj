@@ -39,16 +39,16 @@
 
 (deftest make-filter-resample-unsupervised
   (fact
-   (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+   (let [ds (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
          options (make-filter-options :resample-unsupervised
                                       {:dataset-format ds :seed 10 :size-percent 50 :no-replacement true :invert true})]
      options => (just ["-S" "10" "-Z" "50" "-V" "-no-replacement"] :in-any-order))))
 
 (deftest make-filter-resample-supervised
   (fact
-   (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+   (let [ds (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
          options (make-filter-options :resample-supervised
                                       {:dataset-format ds :seed 10 :size-percent 50 :no-replacement true :invert true :bias 1})]
      options => (just ["-S" "10" "-Z" "50" "-V" "-no-replacement" "-B" "1"] :in-any-order))))
@@ -106,16 +106,16 @@
            (class f)))))
 
 (deftest make-filter-resample-unsupervised
-  (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-               (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+  (let [ds (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+               (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
         f (make-filter :resample-unsupervised {:dataset-format ds :seed 10 :size-percent 50 :no-replacement true})]
     (is (= weka.filters.unsupervised.instance.Resample
            (class f)))))
 
 (deftest make-filter-resample-supervised
   (let [ds (dataset-set-class
-            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
             :class)
         f (make-filter :resample-supervised {:dataset-format ds :seed 10 :size-percent 50 :no-replacement true :bias 1})]
     (is (= weka.filters.supervised.instance.Resample
@@ -123,8 +123,8 @@
 
 (deftest make-filter-stratified-remove-folds-supervised
   (let [ds (dataset-set-class
-            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
             :class)
         f (make-filter :stratified-remove-folds-supervised {:dataset-format ds :num-folds 3 :fold 1 :seed 2016 })]
     (is (= weka.filters.supervised.instance.StratifiedRemoveFolds
@@ -215,15 +215,15 @@
                                                            [["Hello" 55 :yes] ["World" -100 :no]])))))))
 
 (deftest make-apply-filter-resample-unsupervised
-  (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-               (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+  (let [ds (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+               (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
         ds2 (make-apply-filter :resample-unsupervised {:seed 10 :size-percent 50 :no-replacement true} ds)]
     (is (= 75 (dataset-count ds2)))))
 
 (deftest make-apply-filter-resample-supervised
   (let [ds (dataset-set-class
-            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
             :class)
         ds2 (make-apply-filter :resample-supervised {:seed 10 :size-percent 50 :no-replacement true :bias 1} ds)]
     (is (= 75 (dataset-count ds2)))))
@@ -231,8 +231,8 @@
 (deftest make-apply-filter-random-subset
   (let [num-att 2
         ds (dataset-set-class
-            (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+            (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
             :class)
         ds2 (make-apply-filter :random-subset {:seed 10 :num-attributes num-att} ds)]
     ;;the class is the third attribute, hence the count has to be decremented
@@ -240,8 +240,8 @@
 
 (deftest make-apply-filter-normalize
   (let [ds (dataset-set-class
-             (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-                 (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
+             (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+                 (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))
              :class)
         ds2 (make-apply-filter :normalize {:scale 1.0 :translation 0.0 :unset-class false} ds)]
     (is (every? (fn [v] (every? #(<= 0.0 % 1.0) (butlast v))) (dataset-as-vecs ds2)))))

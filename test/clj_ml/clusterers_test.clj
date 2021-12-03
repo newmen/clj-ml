@@ -49,7 +49,7 @@
   (let [ds (make-dataset :test [:a :b] [[1 2] [3 4] [5 6]])
         c (make-clusterer :expectation-maximization)]
     (clusterer-build c ds)
-    (clusterer-evaluate c :cross-validation ds 2)
+    (clusterer-evaluate c :cross-validation ds 3)
     (is true)))
 
 (deftest test-kmeans-clusterer-initialization-option

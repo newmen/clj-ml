@@ -5,22 +5,14 @@
   (:use clojure.test midje.sweet))
 
 (deftest test-load-instances-iris-arff-url
-  (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.arff ...")
-               (load-instances :arff "http://clj-ml.artifice.cc/iris.arff"))
-        ds-sparse (do (println "Loading instances from http://clj-ml.artifice.cc/testsparse.arff ...")
-                      (load-instances :arff "http://clj-ml.artifice.cc/testsparse.arff"))
-        ds-nonsparse (do (println "Loading instances from http://clj-ml.artifice.cc/testnonsparse.arff ...")
-                         (load-instances :arff "http://clj-ml.artifice.cc/testnonsparse.arff"))]
+  (let [ds (do (println "Loading instances from https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff ...")
+               (load-instances :arff "https://storm.cis.fordham.edu/~gweiss/data-mining/weka-data/iris.arff"))]
     (is (= 150 (dataset-count ds)))
-    (is (= 2 (dataset-count ds-sparse)))
-    (is (= 2 (dataset-count ds-nonsparse)))
-    (is (= weka.core.DenseInstance (class (first (dataset-seq ds)))))
-    (is (= weka.core.SparseInstance (class (first (dataset-seq ds-sparse)))))
-    (is (= (dataset-as-vecs ds-sparse) (dataset-as-vecs ds-nonsparse)))))
+    (is (= weka.core.DenseInstance (class (first (dataset-seq ds)))))))
 
 (deftest test-load-instances-iris-csv-url
-  (let [ds (do (println "Loading instances from http://clj-ml.artifice.cc/iris.csv ...")
-               (load-instances :csv "http://clj-ml.artifice.cc/iris.csv"))]
+  (let [ds (do (println "Loading instances from https://datahub.io/machine-learning/iris/r/iris.csv ...")
+               (load-instances :csv "https://datahub.io/machine-learning/iris/r/iris.csv"))]
     (is (= 150 (dataset-count ds)))))
 
 (deftest test-save-instances
